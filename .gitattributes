@@ -1,0 +1,65 @@
+* text eol=lf whitespace=trailing-space,space-before-tab,tab-in-indent
+
+*.md text
+*.txt text
+*.cfg text
+*.sh text
+*.bat text eol=auto
+*.xml text
+*.htm text
+*.html text
+*.css text
+*.js text
+*.json text
+*.php text
+*.tpl text
+*.py text
+*.sql text
+
+*.pal text
+
+*.md5 text
+
+*.directory text
+
+*.gd text
+*.tscn text
+*.import text
+*.godot text
+*.tres text
+*.res binary
+*.meshlib binary
+
+*.tsx text
+
+*.dia binary
+
+*.fnt text
+
+*.bmp binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.ico binary
+*.ttf binary
+*.ase binary
+*.xcf binary
+
+*.dae binary
+*.fbx binary
+*.obj text
+*.mtl text
+*.material binary
+*.blend binary
+
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.sunvox binary
+*.mmpz binary
+*.xpf text
+
+*.stex binary
+
+*.bin binary
