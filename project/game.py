@@ -6,7 +6,7 @@ from pygame.locals import *
 
 from board import *
 from pieceTypes import *
-import gameRenderer
+from gameRenderer import GameRenderer
 
 BoardCellWidth = 8
 BoardCellHeight = 8
@@ -17,11 +17,8 @@ def main() -> None:
 
 	done = False
 
-	screen = pygame.display.set_mode((640, 480))
-	font = pygame.font.SysFont("", int(gameRenderer.CellPixelWidth * 1.5))
-
-	pieceIconSurfaces = gameRenderer.renderPieceIconSurfaces(font)
-
+	gameRenderer = GameRenderer()
+	
 	board = Board(BoardCellWidth, BoardCellHeight)
 	board.loadFromStringRowList(
 		[
@@ -40,13 +37,8 @@ def main() -> None:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or event.type == pygame.KEYDOWN:
 				done = True
-		
-		screen.fill(gameRenderer.BackgroundColor)
 
-		gameRenderer.drawBoard(screen, board)
-		gameRenderer.drawPieces(screen, board, pieceIconSurfaces)
-		
-		pygame.display.update()
+		gameRenderer.draw(board)
 	
 	pygame.quit()
 

@@ -3,69 +3,80 @@ from typing import List
 import pygame
 from pygame.locals import *
 
-from board import *
-from pieceTypes import *
+class GameRenderer:
+	from board import Board
+	from pieceTypes import PieceTypes, PieceTypeLetters
+	
+	def __init__(self):
+		self.cellPixelWidth = 32
+		self.cellPixelHeight = 32
 
-CellPixelWidth = 32
-CellPixelHeight = 32
+		self.backgroundColor = (0, 0, 0)
 
-BackgroundColor = (0, 0, 0)
+		self.cellColors = [
+			(192, 192, 192),
+			(128, 128, 128)
+		]
 
-CellColor0 = (192, 192, 192)
-CellColor1 = (128, 128, 128)
-CellColors = [
-	CellColor0,
-	CellColor1
-]
+		self.pieceColors = [
+			(255, 255, 255),
+			(0, 0, 0)
+		]
 
-PieceColor0 = (255, 255, 255)
-PieceColor1 = (0, 0, 0)
-PieceColors = [
-	PieceColor0,
-	PieceColor1
-]
+		self.screen = pygame.display.set_mode((640, 480))
 
-def renderPieceIconSurfaces(font) -> List:
-	pieceIconSurfaces = []
+		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
+		self.pieceIconSurfaces = self.renderPieceIconSurfaces(font)
 
-	for teamIndex in range(2):
-		teamPieceIconSurfaces = []
+	def renderPieceIconSurfaces(self, font) -> List:
+		pieceIconSurfaces = []
 
-		pieceColor = PieceColors[teamIndex]
-		for pieceTypeIndex in range(PieceTypes.NUMBER_OF_TYPES.value):
-			pieceIconSurface = font.render(PieceTypeLetters[pieceTypeIndex], True, PieceColors[teamIndex])
-			teamPieceIconSurfaces.append(pieceIconSurface)
-		
-		pieceIconSurfaces.append(teamPieceIconSurfaces)
+		for teamIndex in range(2):
+			teamPieceIconSurfaces = []
 
-	return pieceIconSurfaces
-
-def drawBoard(screen: pygame.Surface, board: Board) -> None:
-	for y in range(0, board.cellHeight):
-		for x in range(0, board.cellWidth):
-			cellIndex = (y * board.cellWidth) + x
+			pieceColor = self.pieceColors[teamIndex]
+			for pieceTypeIndex in range(self.PieceTypes.NUMBER_OF_TYPES.value):
+				pieceIconSurface = font.render(self.PieceTypeLetters[pieceTypeIndex], True, self.pieceColors[teamIndex])
+				teamPieceIconSurfaces.append(pieceIconSurface)
 			
-			cellColor = None
-			if (cellIndex % 2) == (y % 2):
-				cellColor = CellColor0
-			else:
-				cellColor = CellColor1
+			pieceIconSurfaces.append(teamPieceIconSurfaces)
 
-			pygame.draw.rect(screen, cellColor, pygame.Rect(x * CellPixelWidth, y * CellPixelHeight, CellPixelWidth, CellPixelHeight))
+		return pieceIconSurfaces
 
-def drawPieces(screen: pygame.Surface, board: Board, pieceIconSurfaces: List) -> None:
-	for y in range(0, board.cellHeight):
-		for x in range(0, board.cellWidth):
-			cellIndex = (y * board.cellWidth) + x
+	def draw(self, board: Board) -> None:
+		self.screen.fill(self.backgroundColor)
+		
+		self.drawBoard(board)
+		self.drawPieces(board)
 
-			cellPieceType = board.cellPieceTypes[cellIndex]
-			if cellPieceType is not PieceTypes.NONE.value:
-				drawPiece(screen, x, y, cellPieceType, board.cellPieceTeams[cellIndex], pieceIconSurfaces)
+		pygame.display.update()
 
-def drawPiece(screen: pygame.Surface, cellX: int, cellY: int, pieceType: int, teamIndex: int, pieceIconSurfaces: List) -> None:
-	pieceIconSurface = pieceIconSurfaces[teamIndex][pieceType]
+	def drawBoard(self, board: Board) -> None:
+		for y in range(0, board.cellHeight):
+			for x in range(0, board.cellWidth):
+				cellIndex = (y * board.cellWidth) + x
+				
+				cellColor = None
+				if (cellIndex % 2) == (y % 2):
+					cellColor = self.cellColors[0]
+				else:
+					cellColor = self.cellColors[1]
 
-	cellLeft = cellX * CellPixelWidth
-	cellTop = cellY * CellPixelHeight
+				pygame.draw.rect(self.screen, cellColor, pygame.Rect(x * self.cellPixelWidth, y * self.cellPixelHeight, self.cellPixelWidth, self.cellPixelHeight))
 
-	screen.blit(pieceIconSurface, (cellLeft, cellTop))
+	def drawPieces(self, board: Board) -> None:
+		for y in range(0, board.cellHeight):
+			for x in range(0, board.cellWidth):
+				cellIndex = (y * board.cellWidth) + x
+
+				cellPieceType = board.cellPieceTypes[cellIndex]
+				if cellPieceType is not self.PieceTypes.NONE.value:
+					self.drawPiece(self.screen, x, y, cellPieceType, board.cellPieceTeams[cellIndex])
+
+	def drawPiece(self, screen: pygame.Surface, cellX: int, cellY: int, pieceType: int, teamIndex: int) -> None:
+		pieceIconSurface = self.pieceIconSurfaces[teamIndex][pieceType]
+
+		cellLeft = cellX * self.cellPixelWidth
+		cellTop = cellY * self.cellPixelHeight
+
+		self.screen.blit(pieceIconSurface, (cellLeft, cellTop))
