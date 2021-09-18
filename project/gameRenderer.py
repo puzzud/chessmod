@@ -27,6 +27,8 @@ class GameRenderer:
 			(0, 0, 0)
 		]
 
+		pygame.font.init()
+
 		self.screen = pygame.display.set_mode((640, 480))
 
 		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
