@@ -3,11 +3,15 @@ from typing import List
 import pygame
 from pygame.locals import *
 
+from gameLogic import GameLogic
+
 class GameRenderer:
 	from board import Board
 	from pieceTypes import PieceTypes, PieceTypeLetters
 	
-	def __init__(self):
+	def __init__(self, gameLogic: GameLogic):
+		self.gameLogic = gameLogic
+
 		self.cellPixelWidth = 32
 		self.cellPixelHeight = 32
 
@@ -43,9 +47,10 @@ class GameRenderer:
 
 		return pieceIconSurfaces
 
-	def draw(self, board: Board) -> None:
+	def draw(self) -> None:
 		self.screen.fill(self.backgroundColor)
 		
+		board = self.gameLogic.board
 		self.drawBoard(board)
 		self.drawPieces(board)
 

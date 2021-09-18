@@ -1,15 +1,8 @@
-from typing import Dict, List
-from enum import Enum
-
 import pygame
 from pygame.locals import *
 
-from board import *
-from pieceTypes import *
+from gameLogic import GameLogic
 from gameRenderer import GameRenderer
-
-BoardCellWidth = 8
-BoardCellHeight = 8
 
 def main() -> None:
 	pygame.init()
@@ -17,28 +10,15 @@ def main() -> None:
 
 	done = False
 
-	gameRenderer = GameRenderer()
-	
-	board = Board(BoardCellWidth, BoardCellHeight)
-	board.loadFromStringRowList(
-		[
-			"rnbqkbnr",
-			"pppppppp",
-			"........",
-			"........",
-			"........",
-			"........",
-			"PPPPPPPP",
-			"RNBQKBNR"
-		]
-	)
+	gameLogic = GameLogic()
+	gameRenderer = GameRenderer(gameLogic)
 
 	while not done:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT or event.type == pygame.KEYDOWN:
 				done = True
 
-		gameRenderer.draw(board)
+		gameRenderer.draw()
 	
 	pygame.quit()
 
