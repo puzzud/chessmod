@@ -1,18 +1,27 @@
 import pygame
 from pygame.locals import *
 
-class GameLogic:
+from observer import Observer
+
+class GameLogic(Observer):
 	from board import Board
 	
 	def __init__(self):
+		super().__init__()
+
 		self.done = False
 
 		self.processHandlers = {
 			pygame.QUIT: self.processQuitEvent,
-			pygame.KEYDOWN: self.processKeyEvent
+			pygame.KEYDOWN: self.processKeyEvent,
+			pygame.KEYUP: self.processKeyEvent
 		}
 
 		self.board = self.Board(8, 8)
+
+		pygame.init()
+
+	def initialize(self) -> int:
 		self.board.loadFromStringRowList(
 			[
 				"rnbqkbnr",
@@ -26,10 +35,18 @@ class GameLogic:
 			]
 		)
 
-		pygame.init()
+		self.notify(0) # TODO: Do enum or string.
 
-	def shutdown(self) -> None:
+		return 0
+
+	def shutdown(self) -> int:
 		pygame.quit()
+
+		return 0
+
+	def loop(self) -> int:
+		while not self.done:
+			self.proccessEvents()
 
 	def proccessEvents(self) -> None:
 		for event in pygame.event.get():
@@ -40,6 +57,8 @@ class GameLogic:
 	def processQuitEvent(self, event) -> None:
 		self.done = True
 	
-	def processKeyEvent(self, event) -> None:
-		self.done = True
-	
+	def processKeyEvent(self, event: pygame.event) -> None:
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_ESCAPE:
+				self.done = True
+			

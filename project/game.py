@@ -5,10 +5,8 @@ def main() -> None:
 	gameLogic = GameLogic()
 	gameRenderer = GameRenderer(gameLogic)
 
-	while not gameLogic.done:
-		gameLogic.proccessEvents()
-		gameRenderer.draw()
-	
+	gameLogic.initialize()
+	gameLogic.loop()
 	gameLogic.shutdown()
 
 main()

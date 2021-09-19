@@ -3,14 +3,18 @@ from typing import List
 import pygame
 from pygame.locals import *
 
+from observer import Observer
 from gameLogic import GameLogic
 
-class GameRenderer:
+class GameRenderer(Observer):
 	from board import Board
 	from pieceTypes import PieceTypes, PieceTypeLetters
 	
 	def __init__(self, gameLogic: GameLogic):
+		super().__init__()
+
 		self.gameLogic = gameLogic
+		self.gameLogic.attach(self, 0)
 
 		self.cellPixelWidth = 64
 		self.cellPixelHeight = 64
@@ -33,6 +37,10 @@ class GameRenderer:
 
 		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
 		self.pieceIconSurfaces = self.renderPieceIconSurfaces(font)
+
+	def notified(self, signalId: int) -> None:
+		if signalId == 0: # TODO: Change to string.
+			self.draw()
 
 	def renderPieceIconSurfaces(self, font) -> List:
 		pieceIconSurfaces = []
