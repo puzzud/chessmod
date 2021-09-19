@@ -12,8 +12,8 @@ class GameRenderer:
 	def __init__(self, gameLogic: GameLogic):
 		self.gameLogic = gameLogic
 
-		self.cellPixelWidth = 32
-		self.cellPixelHeight = 32
+		self.cellPixelWidth = 64
+		self.cellPixelHeight = 64
 
 		self.backgroundColor = (0, 0, 0)
 
@@ -29,7 +29,7 @@ class GameRenderer:
 
 		pygame.font.init()
 
-		self.screen = pygame.display.set_mode((640, 480))
+		self.screen = pygame.display.set_mode((800, 600))
 
 		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
 		self.pieceIconSurfaces = self.renderPieceIconSurfaces(font)
