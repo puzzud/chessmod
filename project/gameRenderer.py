@@ -13,8 +13,15 @@ class GameRenderer(Observer):
 	def __init__(self, gameLogic: GameLogic):
 		super().__init__()
 
+		self.signalHandlers = {
+			"gameInitialized": self.onGameInitialized,
+			"pointerDown": self.onPointerDown
+		}
+
 		self.gameLogic = gameLogic
-		self.gameLogic.attach(self, 0)
+		self.attach(gameLogic, "cellSelected")
+		gameLogic.attach(self, "gameInitialized")
+		gameLogic.attach(self, "pointerDown")
 
 		self.cellPixelWidth = 64
 		self.cellPixelHeight = 64
@@ -37,10 +44,20 @@ class GameRenderer(Observer):
 
 		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
 		self.pieceIconSurfaces = self.renderPieceIconSurfaces(font)
+	
+	def getCellIndexFromPoint(self, position: List) -> int:
+		boardCellWidth = self.gameLogic.board.cellWidth
+		
+		cellX = int(position[0] / self.cellPixelWidth)
+		if cellX >= boardCellWidth:
+			return -1
 
-	def notified(self, signalId: int) -> None:
-		if signalId == 0: # TODO: Change to string.
-			self.draw()
+		cellY = int(position[1] / self.cellPixelHeight)
+		if cellY >= self.gameLogic.board.cellHeight:
+			return -1
+
+		cellIndex = (cellY * boardCellWidth) + cellX
+		return cellIndex
 
 	def renderPieceIconSurfaces(self, font) -> List:
 		pieceIconSurfaces = []
@@ -95,3 +112,12 @@ class GameRenderer(Observer):
 		cellTop = cellY * self.cellPixelHeight
 
 		self.screen.blit(pieceIconSurface, (cellLeft, cellTop))
+
+	def onGameInitialized(self, payload: None) -> None:
+		self.draw()
+
+	def onPointerDown(self, position: None) -> None:
+		#print("Pointer Down: " + str(position))
+		cellIndex = self.getCellIndexFromPoint(position)
+		if cellIndex > -1:
+			self.notify("cellSelected", cellIndex)

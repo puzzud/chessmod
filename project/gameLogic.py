@@ -9,15 +9,25 @@ class GameLogic(Observer):
 	def __init__(self):
 		super().__init__()
 
-		self.done = False
-
-		self.processHandlers = {
-			pygame.QUIT: self.processQuitEvent,
-			pygame.KEYDOWN: self.processKeyEvent,
-			pygame.KEYUP: self.processKeyEvent
+		self.signalHandlers = {
+			"cellSelected": self.onCellSelected
 		}
 
+		self.eventHandlers = {
+			pygame.QUIT: self.onQuitEvent,
+			pygame.KEYDOWN: self.onKeyEvent,
+			pygame.KEYUP: self.onKeyEvent,
+			pygame.MOUSEBUTTONDOWN: self.onMouseEvent,
+			pygame.MOUSEBUTTONUP: self.onMouseEvent
+		}
+
+		self.done = False
+
 		self.board = self.Board(8, 8)
+
+		self.currentTurnTeamIndex = 0
+		self.phaseId = 0
+		self.turnStateId = 0
 
 		pygame.init()
 
@@ -35,7 +45,7 @@ class GameLogic(Observer):
 			]
 		)
 
-		self.notify(0) # TODO: Do enum or string.
+		self.notify("gameInitialized")
 
 		return 0
 
@@ -50,15 +60,21 @@ class GameLogic(Observer):
 
 	def proccessEvents(self) -> None:
 		for event in pygame.event.get():
-			processHandler = self.processHandlers.get(event.type, None)
-			if processHandler is not None:
-				processHandler(event)
+			eventHandler = self.eventHandlers.get(event.type, None)
+			if eventHandler is not None:
+				eventHandler(event)
 	
-	def processQuitEvent(self, event) -> None:
+	def onQuitEvent(self, event) -> None:
 		self.done = True
 	
-	def processKeyEvent(self, event: pygame.event) -> None:
+	def onKeyEvent(self, event: pygame.event) -> None:
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_ESCAPE:
 				self.done = True
-			
+	
+	def onMouseEvent(self, event: pygame.event) -> None:
+		if event.type == pygame.MOUSEBUTTONDOWN:
+			self.notify("pointerDown", event.pos)
+	
+	def onCellSelected(self, cellIndex: int) -> None:
+		print("Cell Selected: " + str(cellIndex))
