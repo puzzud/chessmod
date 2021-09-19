@@ -15,13 +15,15 @@ class GameRenderer(Observer):
 
 		self.signalHandlers = {
 			"gameInitialized": self.onGameInitialized,
-			"pointerDown": self.onPointerDown
+			"pointerDown": self.onPointerDown,
+			"turnEnded" : self.onTurnEnded
 		}
 
 		self.gameLogic = gameLogic
 		self.attach(gameLogic, "cellSelected")
 		gameLogic.attach(self, "gameInitialized")
 		gameLogic.attach(self, "pointerDown")
+		gameLogic.attach(self, "turnEnded")
 
 		self.cellPixelWidth = 64
 		self.cellPixelHeight = 64
@@ -121,3 +123,7 @@ class GameRenderer(Observer):
 		cellIndex = self.getCellIndexFromPoint(position)
 		if cellIndex > -1:
 			self.notify("cellSelected", cellIndex)
+
+	def onTurnEnded(self, payload: None) -> None:
+		self.draw()
+	

@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 
 from observer import Observer
+from pieceTypes import PieceTypes, PieceTypeLetters
 
 class GameLogic(Observer):
 	from board import Board
@@ -28,6 +29,7 @@ class GameLogic(Observer):
 		self.currentTurnTeamIndex = 0
 		self.phaseId = 0
 		self.turnStateId = 0
+		self.activatedPieceCellIndex = -1
 
 		pygame.init()
 
@@ -54,6 +56,36 @@ class GameLogic(Observer):
 
 		return 0
 
+	def activatePiece(self, cellIndex: int) -> None:
+		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
+		print("Activated Piece: " + PieceTypeLetters[pieceTypeIndex])
+		self.activatedPieceCellIndex = cellIndex
+		self.turnStateId = 1
+
+		self.notify("pieceActivated", cellIndex)
+
+	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> None:
+		pieceTypeIndex = self.board.cellPieceTypes[fromCellIndex]
+		teamIndex = self.board.cellPieceTeams[fromCellIndex]
+
+		self.board.cellPieceTypes[fromCellIndex] = PieceTypes.NONE.value
+		self.board.cellPieceTeams[fromCellIndex] = -1
+
+		self.board.cellPieceTypes[toCellIndex] = pieceTypeIndex
+		self.board.cellPieceTeams[toCellIndex] = teamIndex
+
+		self.activatedPieceCellIndex = -1
+
+		#print("Moved Piece: " + str(PieceTypeLetters[pieceTypeIndex]))
+
+		self.notify("pieceMoved", [fromCellIndex, toCellIndex])
+
+	def endTurn(self) -> None:
+		self.currentTurnTeamIndex = (self.currentTurnTeamIndex + 1) % 2
+		self.turnStateId = 0
+
+		self.notify("turnEnded")
+
 	def loop(self) -> int:
 		while not self.done:
 			self.proccessEvents()
@@ -77,4 +109,22 @@ class GameLogic(Observer):
 			self.notify("pointerDown", event.pos)
 	
 	def onCellSelected(self, cellIndex: int) -> None:
-		print("Cell Selected: " + str(cellIndex))
+		#print("Cell Selected: " + str(cellIndex))
+		if self.phaseId == 0:
+			if self.turnStateId == 0:
+				pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
+				if pieceTypeIndex == PieceTypes.NONE:
+					return
+				
+				teamIndex = self.board.cellPieceTeams[cellIndex]
+				if teamIndex != self.currentTurnTeamIndex:
+					return
+				
+				self.activatePiece(cellIndex)
+			elif self.turnStateId == 1:
+				teamIndex = self.board.cellPieceTeams[cellIndex]
+				if teamIndex == self.currentTurnTeamIndex:
+					return
+
+				self.movePiece(self.activatedPieceCellIndex, cellIndex)
+				self.endTurn()
