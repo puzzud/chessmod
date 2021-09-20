@@ -19,18 +19,9 @@ class GameRenderer(Observer):
 			"turnEnded" : self.onTurnEnded
 		}
 
-		self.eventHandlers = {
-			pygame.QUIT: self.onQuitEvent,
-			pygame.KEYDOWN: self.onKeyEvent,
-			pygame.KEYUP: self.onKeyEvent,
-			pygame.MOUSEBUTTONDOWN: self.onMouseEvent,
-			pygame.MOUSEBUTTONUP: self.onMouseEvent
-		}
-
 		self.gameLogic = gameLogic
 		self.attach(gameLogic, "cellSelected")
 		gameLogic.attach(self, "gameInitialized")
-		gameLogic.attach(self, "pointerDown")
 		gameLogic.attach(self, "turnEnded")
 
 		self.cellPixelWidth = 64
@@ -129,7 +120,6 @@ class GameRenderer(Observer):
 
 	def onGameInitialized(self, payload: None) -> None:
 		self.draw()
-		self.loop()
 
 	def onPointerDown(self, position: List) -> None:
 		#print("Pointer Down: " + str(position))
@@ -139,27 +129,4 @@ class GameRenderer(Observer):
 
 	def onTurnEnded(self, payload: None) -> None:
 		self.draw()
-	
-	def loop(self) -> int:
-		while not self.gameLogic.done:
-			self.proccessEvents()
-
-	def proccessEvents(self) -> None:
-		for event in pygame.event.get():
-			eventHandler = self.eventHandlers.get(event.type, None)
-			if eventHandler is not None:
-				eventHandler(event)
-	
-	def onQuitEvent(self, event) -> None:
-		self.gameLogic.done = True
-	
-	def onKeyEvent(self, event: pygame.event) -> None:
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_ESCAPE:
-				self.gameLogic.done = True
-	
-	def onMouseEvent(self, event: pygame.event) -> None:
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			#self.notify("pointerDown", event.pos)
-			self.onPointerDown(event.pos)
 	

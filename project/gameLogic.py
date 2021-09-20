@@ -11,8 +11,6 @@ class GameLogic(Observer):
 			"cellSelected": self.onCellSelected
 		}
 
-		self.done = False
-
 		self.board = self.Board(8, 8)
 
 		self.currentTurnTeamIndex = 0
