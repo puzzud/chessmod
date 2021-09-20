@@ -6,7 +6,6 @@ def main() -> None:
 	gameRenderer = GameRenderer(gameLogic)
 
 	gameLogic.initialize()
-	gameLogic.loop()
 	gameLogic.shutdown()
 
 main()

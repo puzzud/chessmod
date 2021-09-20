@@ -19,6 +19,14 @@ class GameRenderer(Observer):
 			"turnEnded" : self.onTurnEnded
 		}
 
+		self.eventHandlers = {
+			pygame.QUIT: self.onQuitEvent,
+			pygame.KEYDOWN: self.onKeyEvent,
+			pygame.KEYUP: self.onKeyEvent,
+			pygame.MOUSEBUTTONDOWN: self.onMouseEvent,
+			pygame.MOUSEBUTTONUP: self.onMouseEvent
+		}
+
 		self.gameLogic = gameLogic
 		self.attach(gameLogic, "cellSelected")
 		gameLogic.attach(self, "gameInitialized")
@@ -40,6 +48,7 @@ class GameRenderer(Observer):
 			(0, 0, 0)
 		]
 
+		pygame.init()
 		pygame.font.init()
 
 		self.screen = pygame.display.set_mode((800, 600))
@@ -47,6 +56,9 @@ class GameRenderer(Observer):
 		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
 		self.pieceIconSurfaces = self.renderPieceIconSurfaces(font)
 	
+	def __del__(self):
+		pygame.quit()
+
 	def getCellIndexFromPoint(self, position: List) -> int:
 		boardCellWidth = self.gameLogic.board.cellWidth
 		
@@ -117,8 +129,9 @@ class GameRenderer(Observer):
 
 	def onGameInitialized(self, payload: None) -> None:
 		self.draw()
+		self.loop()
 
-	def onPointerDown(self, position: None) -> None:
+	def onPointerDown(self, position: List) -> None:
 		#print("Pointer Down: " + str(position))
 		cellIndex = self.getCellIndexFromPoint(position)
 		if cellIndex > -1:
@@ -126,4 +139,27 @@ class GameRenderer(Observer):
 
 	def onTurnEnded(self, payload: None) -> None:
 		self.draw()
+	
+	def loop(self) -> int:
+		while not self.gameLogic.done:
+			self.proccessEvents()
+
+	def proccessEvents(self) -> None:
+		for event in pygame.event.get():
+			eventHandler = self.eventHandlers.get(event.type, None)
+			if eventHandler is not None:
+				eventHandler(event)
+	
+	def onQuitEvent(self, event) -> None:
+		self.gameLogic.done = True
+	
+	def onKeyEvent(self, event: pygame.event) -> None:
+		if event.type == pygame.KEYDOWN:
+			if event.key == pygame.K_ESCAPE:
+				self.gameLogic.done = True
+	
+	def onMouseEvent(self, event: pygame.event) -> None:
+		if event.type == pygame.MOUSEBUTTONDOWN:
+			#self.notify("pointerDown", event.pos)
+			self.onPointerDown(event.pos)
 	
