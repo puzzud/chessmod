@@ -1,3 +1,5 @@
+from typing import List
+
 from observer import Observer
 import pieceSet
 from board import Board
@@ -17,6 +19,16 @@ class GameLogic(Observer):
 		self.turnStateId = 0
 		self.validCellIndices = []
 		self.activatedPieceCellIndex = -1
+
+	def getAllKingsOnBoard(self) -> List:
+		kingCellIndices = []
+
+		pieceType = self.board.pieceSet.KingPieceType
+		for cellIndex in range(len(self.board.cellPieceTypes)):
+			if self.board.cellPieceTypes[cellIndex] == pieceType:
+				kingCellIndices.append(cellIndex)
+
+		return kingCellIndices
 
 	def initialize(self) -> int:
 		self.board.loadFromStringRowList(
@@ -44,7 +56,7 @@ class GameLogic(Observer):
 		self.activatedPieceCellIndex = cellIndex
 		self.turnStateId = 1
 		
-		print("Activated Piece: " + str(pieceTypeIndex))
+		#print("Activated Piece: " + str(pieceTypeIndex))
 
 		self.notify("pieceActivated", cellIndex)
 
@@ -55,7 +67,7 @@ class GameLogic(Observer):
 		self.activatedPieceCellIndex = -1
 		self.turnStateId = 0
 
-		print("Deactivated Piece: " + str(pieceTypeIndex))
+		#print("Deactivated Piece: " + str(pieceTypeIndex))
 
 		self.notify("pieceDeactivated", cellIndex)
 
@@ -80,7 +92,21 @@ class GameLogic(Observer):
 		self.turnStateId = 0
 
 		self.notify("turnEnded")
+
+		self.checkForEndOfGame()
 	
+	def endGame(self) -> None:
+		winningTeamIndex = self.board.cellPieceTeams[self.getAllKingsOnBoard()[0]]
+
+		print("Game Ended")
+		print("Winner: " + str(winningTeamIndex))
+
+		self.notify("gameEnded", winningTeamIndex)
+
+	def checkForEndOfGame(self) -> None:
+		if len(self.getAllKingsOnBoard()) == 1:
+			self.endGame()
+
 	def onCellSelected(self, cellIndex: int) -> None:
 		isValidCell = False
 		

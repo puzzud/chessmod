@@ -11,7 +11,9 @@ class GameController(Observer):
 	def __init__(self, gameLogic: GameLogic, gameRenderer: GameRenderer):
 		super().__init__()
 
-		self.signalHandlers = {}
+		self.signalHandlers = {
+			"gameEnded": self.onGameEnded
+		}
 
 		self.eventHandlers = {
 			pygame.QUIT: self.onQuitEvent,
@@ -22,6 +24,7 @@ class GameController(Observer):
 		}
 
 		self.attach(gameRenderer, "pointerDown")
+		gameLogic.attach(self, "gameEnded")
 
 		self.running = False
 	
@@ -32,6 +35,9 @@ class GameController(Observer):
 			self.proccessEvents()
 		
 		return 0
+
+	def onGameEnded(self, winningTeamIndex: int) -> None:
+		self.running = False
 
 	def proccessEvents(self) -> None:
 		for event in pygame.event.get():
