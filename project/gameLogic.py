@@ -1,9 +1,8 @@
 from observer import Observer
-from pieceTypes import PieceTypes, PieceTypeLetters
+import pieceSet
+from board import Board
 
 class GameLogic(Observer):
-	from board import Board
-	
 	def __init__(self):
 		super().__init__()
 
@@ -11,11 +10,12 @@ class GameLogic(Observer):
 			"cellSelected": self.onCellSelected
 		}
 
-		self.board = self.Board(8, 8)
+		self.board = Board(8, 8, pieceSet.ChessPieceSet())
 
 		self.currentTurnTeamIndex = 0
 		self.phaseId = 0
 		self.turnStateId = 0
+		self.validCellIndices = []
 		self.activatedPieceCellIndex = -1
 
 	def initialize(self) -> int:
@@ -44,15 +44,17 @@ class GameLogic(Observer):
 		self.activatedPieceCellIndex = cellIndex
 		self.turnStateId = 1
 		
-		print("Activated Piece: " + PieceTypeLetters[pieceTypeIndex])
+		print("Activated Piece: " + str(pieceTypeIndex))
 
 		self.notify("pieceActivated", cellIndex)
+
+		#piece = self.board.getPiece(cellIndex)
 
 	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> None:
 		pieceTypeIndex = self.board.cellPieceTypes[fromCellIndex]
 		teamIndex = self.board.cellPieceTeams[fromCellIndex]
 
-		self.board.cellPieceTypes[fromCellIndex] = PieceTypes.NONE.value
+		self.board.cellPieceTypes[fromCellIndex] = -1
 		self.board.cellPieceTeams[fromCellIndex] = -1
 
 		self.board.cellPieceTypes[toCellIndex] = pieceTypeIndex
@@ -60,7 +62,7 @@ class GameLogic(Observer):
 
 		self.activatedPieceCellIndex = -1
 
-		#print("Moved Piece: " + str(PieceTypeLetters[pieceTypeIndex]))
+		#print("Moved Piece: " + str(pieceTypeIndex))
 
 		self.notify("pieceMoved", [fromCellIndex, toCellIndex])
 
@@ -76,7 +78,7 @@ class GameLogic(Observer):
 		if self.phaseId == 0:
 			if self.turnStateId == 0:
 				pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
-				if pieceTypeIndex != PieceTypes.NONE:
+				if pieceTypeIndex != -1:
 					teamIndex = self.board.cellPieceTeams[cellIndex]
 					if teamIndex == self.currentTurnTeamIndex:
 						isValidCell = True

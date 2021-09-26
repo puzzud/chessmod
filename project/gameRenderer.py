@@ -8,7 +8,6 @@ from gameLogic import GameLogic
 
 class GameRenderer(Observer):
 	from board import Board
-	from pieceTypes import PieceTypes, PieceTypeLetters
 	
 	def __init__(self, gameLogic: GameLogic):
 		super().__init__()
@@ -44,8 +43,7 @@ class GameRenderer(Observer):
 
 		self.screen = pygame.display.set_mode((800, 600))
 
-		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
-		self.pieceIconSurfaces = self.renderPieceIconSurfaces(font)
+		self.pieceIconSurfaces = []
 	
 	def __del__(self):
 		pygame.quit()
@@ -71,8 +69,9 @@ class GameRenderer(Observer):
 			teamPieceIconSurfaces = []
 
 			pieceColor = self.pieceColors[teamIndex]
-			for pieceTypeIndex in range(self.PieceTypes.NUMBER_OF_TYPES.value):
-				pieceIconSurface = font.render(self.PieceTypeLetters[pieceTypeIndex], True, self.pieceColors[teamIndex])
+			for pieceIndex in range(len(self.gameLogic.board.pieceSet.pieces)):
+				piece = self.gameLogic.board.pieceSet.pieces[pieceIndex]
+				pieceIconSurface = font.render(piece.character, True, self.pieceColors[teamIndex])
 				teamPieceIconSurfaces.append(pieceIconSurface)
 			
 			pieceIconSurfaces.append(teamPieceIconSurfaces)
@@ -107,7 +106,7 @@ class GameRenderer(Observer):
 				cellIndex = (y * board.cellWidth) + x
 
 				cellPieceType = board.cellPieceTypes[cellIndex]
-				if cellPieceType is not self.PieceTypes.NONE.value:
+				if cellPieceType is not -1:
 					self.drawPiece(self.screen, x, y, cellPieceType, board.cellPieceTeams[cellIndex])
 
 	def drawPiece(self, screen: pygame.Surface, cellX: int, cellY: int, pieceType: int, teamIndex: int) -> None:
@@ -119,6 +118,9 @@ class GameRenderer(Observer):
 		self.screen.blit(pieceIconSurface, (cellLeft, cellTop))
 
 	def onGameInitialized(self, payload: None) -> None:
+		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
+		self.pieceIconSurfaces = self.renderPieceIconSurfaces(font)
+
 		self.draw()
 
 	def onPointerDown(self, position: List) -> None:
