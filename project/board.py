@@ -54,8 +54,11 @@ class Board:
 				x += 1
 			y += 1
 	
-	def isValidMoveDestination(self, sourceCellIndex: int, destinationCellIndex: int) -> bool:
-		pieceType = self.cellPieceTypes[sourceCellIndex]
+	def getValidMoveCellIndices(self, cellIndex: int) -> List:
+		pieceType = self.cellPieceTypes[cellIndex]
 		piece = self.pieceSet.pieces[pieceType]
-		return destinationCellIndex in piece.getPossibleMoves(self, sourceCellIndex, self.cellPieceTeams[sourceCellIndex])
+		return piece.getPossibleMoves(self, cellIndex, self.cellPieceTeams[cellIndex])
+
+	def isValidMoveDestination(self, sourceCellIndex: int, destinationCellIndex: int) -> bool:
+		return destinationCellIndex in self.getValidMoveCellIndices(sourceCellIndex)
 	

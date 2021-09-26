@@ -94,7 +94,7 @@ class GameRenderer(Observer):
 				if self.boardOverlayCellStates[cellIndex] == 0:
 					cellColor = (0, 0, 0, 0)
 				else:
-					cellColor = (64, 64, 64, 255)
+					cellColor = (64, 64, 64, 192)
 				
 				pygame.draw.rect(self.boardOverlaySurface, cellColor, pygame.Rect(x * self.cellPixelWidth, y * self.cellPixelHeight, self.cellPixelWidth, self.cellPixelHeight))
 
@@ -169,13 +169,17 @@ class GameRenderer(Observer):
 		self.draw()
 	
 	def onPieceActivated(self, cellIndex) -> None:
+		for validCellIndex in self.gameLogic.board.getValidMoveCellIndices(cellIndex):
+			self.boardOverlayCellStates[validCellIndex] = 2
+
 		self.boardOverlayCellStates[cellIndex] = 1
 
 		self.renderBoardOverlay()
 		self.draw()
 
 	def onPieceDeactivated(self, cellIndex) -> None:
-		self.boardOverlayCellStates[cellIndex] = 0
+		numberOfCells = self.gameLogic.board.cellWidth * self.gameLogic.board.cellHeight
+		self.boardOverlayCellStates = [0] * numberOfCells
 		
 		self.renderBoardOverlay()
 		self.draw()
