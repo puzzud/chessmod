@@ -84,9 +84,8 @@ class GameLogic(Observer):
 						isValidCell = True
 						self.activatePiece(cellIndex)
 			elif self.turnStateId == 1:
-				teamIndex = self.board.cellPieceTeams[cellIndex]
-				if teamIndex != self.currentTurnTeamIndex:
-					isValidCell = True
+				isValidCell = self.board.isValidMoveDestination(self.activatedPieceCellIndex, cellIndex)
+				if isValidCell:
 					self.movePiece(self.activatedPieceCellIndex, cellIndex)
 					self.endTurn()
 

@@ -28,10 +28,14 @@ class PawnChessPiece(Piece):
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
 		possibleMoves = []
 
-		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
-		cellCoordinates[1] -= 1
+		yStep = -1 if teamIndex == 0 else 1
 
-		possibleMoves.append(board.getCellIndexFromCoordinates(cellCoordinates))
+		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
+		cellCoordinates[1] += yStep
+		if (cellCoordinates[1] >= 0) and (cellCoordinates[1] < board.cellHeight):
+			destinationCellIndex = board.getCellIndexFromCoordinates(cellCoordinates)
+			if board.cellPieceTeams[destinationCellIndex] != teamIndex:
+				possibleMoves.append(destinationCellIndex)
 
 		return possibleMoves
 
@@ -43,7 +47,6 @@ class RookChessPiece(Piece):
 	
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
 		possibleMoves = []
-		possibleMoves.append(0)
 		return possibleMoves
 
 class KnightChessPiece(Piece):

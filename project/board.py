@@ -22,7 +22,15 @@ class Board:
 	def getCellIndexFromCoordinates(self, cellCoordinates: List) -> int:
 		return (cellCoordinates[1] * self.cellWidth) + cellCoordinates[0]
 
-	def setCell(self, x: int, y: int, contents: Dict) -> None:
+	def getCellContents(self, x: int, y: int) -> Dict:
+		cellIndex = self.getCellIndexFromCoordinates([x, y])
+
+		return {
+			"pieceType": self.cellPieceTypes[cellIndex],
+			"teamIndex": self.cellPieceTeams[cellIndex]
+		}
+
+	def setCellContents(self, x: int, y: int, contents: Dict) -> None:
 		cellIndex = self.getCellIndexFromCoordinates([x, y])
 
 		self.cellPieceTypes[cellIndex] = contents["pieceType"]
@@ -42,7 +50,12 @@ class Board:
 		for stringRow in stringRowList:
 			x = 0
 			for character in stringRow:
-				self.setCell(x, y, self.getCellContentsFromCharacter(character))
+				self.setCellContents(x, y, self.getCellContentsFromCharacter(character))
 				x += 1
 			y += 1
-		
+	
+	def isValidMoveDestination(self, sourceCellIndex: int, destinationCellIndex: int) -> bool:
+		pieceType = self.cellPieceTypes[sourceCellIndex]
+		piece = self.pieceSet.pieces[pieceType]
+		return destinationCellIndex in piece.getPossibleMoves(self, sourceCellIndex, self.cellPieceTeams[sourceCellIndex])
+	
