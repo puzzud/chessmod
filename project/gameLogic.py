@@ -50,6 +50,15 @@ class GameLogic(Observer):
 
 		#piece = self.board.getPiece(cellIndex)
 
+	def deactivatePiece(self, cellIndex: int) -> None:
+		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
+		self.activatedPieceCellIndex = -1
+		self.turnStateId = 0
+
+		print("Deactivated Piece: " + str(pieceTypeIndex))
+
+		self.notify("pieceDeactivated", cellIndex)
+
 	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> None:
 		pieceTypeIndex = self.board.cellPieceTypes[fromCellIndex]
 		teamIndex = self.board.cellPieceTeams[fromCellIndex]
@@ -84,10 +93,14 @@ class GameLogic(Observer):
 						isValidCell = True
 						self.activatePiece(cellIndex)
 			elif self.turnStateId == 1:
-				isValidCell = self.board.isValidMoveDestination(self.activatedPieceCellIndex, cellIndex)
-				if isValidCell:
-					self.movePiece(self.activatedPieceCellIndex, cellIndex)
-					self.endTurn()
+				if cellIndex == self.activatedPieceCellIndex:
+					isValidCell = True
+					self.deactivatePiece(cellIndex)
+				else:
+					isValidCell = self.board.isValidMoveDestination(self.activatedPieceCellIndex, cellIndex)
+					if isValidCell:
+						self.movePiece(self.activatedPieceCellIndex, cellIndex)
+						self.endTurn()
 
 		if not isValidCell:
 			print("Invalid Selection: " + str(cellIndex))
