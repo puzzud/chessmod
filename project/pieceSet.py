@@ -63,6 +63,22 @@ class RookChessPiece(Piece):
 	
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
 		possibleMoves = []
+
+		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
+
+		moveDistance = max(board.cellWidth, board.cellHeight)
+
+		moveDirections = [
+			[0, -1],
+			[1, 0],
+			[0, 1],
+			[-1, 0]
+		]
+
+		for moveDirection in moveDirections:
+			rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, moveDistance)
+			possibleMoves += list(filter(lambda cellIndex: board.isCellEmpty(cellIndex) or board.doesCellHaveOpponentPiece(cellIndex, teamIndex), rayCells))
+
 		return possibleMoves
 
 class KnightChessPiece(Piece):
@@ -70,24 +86,121 @@ class KnightChessPiece(Piece):
 		super().__init__()
 
 		self.character = 'N'
+	
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
+		possibleMoves = []
+
+		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
+
+		moveOffsets = [
+			[-1, -2],
+			[1, -2],
+			[2, -1],
+			[2, 1],
+			[1, 2],
+			[-1, 2],
+			[-2, 1],
+			[-2, -1]
+		]
+
+		for moveOffset in moveOffsets:
+			moveCellCoordinates = cellCoordinates.copy()
+			moveCellCoordinates[0] += moveOffset[0]
+			moveCellCoordinates[1] += moveOffset[1]
+			if not board.areCellCoordinatesOnBoard(moveCellCoordinates):
+				continue
+
+			possibleMoves.append(board.getCellIndexFromCoordinates(moveCellCoordinates))
+
+		possibleMoves = list(filter(lambda cellIndex: board.isCellEmpty(cellIndex) or board.doesCellHaveOpponentPiece(cellIndex, teamIndex), possibleMoves))
+
+		return possibleMoves
 
 class BishopChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 
 		self.character = 'B'
+	
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
+		possibleMoves = []
+
+		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
+
+		moveDistance = max(board.cellWidth, board.cellHeight)
+
+		moveDirections = [
+			[-1, -1],
+			[1, -1],
+			[-1, 1],
+			[1, 1]
+		]
+
+		for moveDirection in moveDirections:
+			rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, moveDistance)
+			possibleMoves += list(filter(lambda cellIndex: board.isCellEmpty(cellIndex) or board.doesCellHaveOpponentPiece(cellIndex, teamIndex), rayCells))
+
+		return possibleMoves
 
 class QueenChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 
 		self.character = 'Q'
+	
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
+		possibleMoves = []
+
+		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
+
+		moveDistance = max(board.cellWidth, board.cellHeight)
+
+		moveDirections = [
+			[0, -1],
+			[1, 0],
+			[0, 1],
+			[-1, 0],
+			[-1, -1],
+			[1, -1],
+			[-1, 1],
+			[1, 1]
+		]
+
+		for moveDirection in moveDirections:
+			rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, moveDistance)
+			possibleMoves += list(filter(lambda cellIndex: board.isCellEmpty(cellIndex) or board.doesCellHaveOpponentPiece(cellIndex, teamIndex), rayCells))
+
+		return possibleMoves
 
 class KingChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 
 		self.character = 'K'
+
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
+		possibleMoves = []
+
+		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
+
+		moveDistance = 1
+
+		moveDirections = [
+			[0, -1],
+			[1, 0],
+			[0, 1],
+			[-1, 0],
+			[-1, -1],
+			[1, -1],
+			[-1, 1],
+			[1, 1]
+		]
+
+		for moveDirection in moveDirections:
+			rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, moveDistance)
+			possibleMoves += list(filter(lambda cellIndex: board.isCellEmpty(cellIndex) or board.doesCellHaveOpponentPiece(cellIndex, teamIndex), rayCells))
+
+		return possibleMoves
 
 class ChessPieceSet(PieceSet):
 	def __init__(self):
