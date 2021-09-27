@@ -22,6 +22,15 @@ class Board:
 	def getCellIndexFromCoordinates(self, cellCoordinates: List) -> int:
 		return (cellCoordinates[1] * self.cellWidth) + cellCoordinates[0]
 
+	def areCellCoordinatesOnBoard(self, cellCoordinates: List) -> bool:
+		if (cellCoordinates[0] < 0) or (cellCoordinates[0] >= self.cellWidth):
+			return False
+		
+		if (cellCoordinates[1] < 0) or (cellCoordinates[1] >= self.cellHeight):
+			return False
+		
+		return True
+
 	def getCellContents(self, x: int, y: int) -> Dict:
 		cellIndex = self.getCellIndexFromCoordinates([x, y])
 
@@ -35,6 +44,12 @@ class Board:
 
 		self.cellPieceTypes[cellIndex] = contents["pieceType"]
 		self.cellPieceTeams[cellIndex] = contents["teamIndex"]
+
+	def isCellEmpty(self, cellIndex: int) -> bool:
+		return self.cellPieceTypes[cellIndex] == -1
+
+	def doesCellHaveOpponentPiece(self, cellIndex: int, teamIndex: int) -> bool:
+		return (not self.isCellEmpty(cellIndex)) and (self.cellPieceTeams[cellIndex] != teamIndex)
 
 	def getCellContentsFromCharacter(self, character: str) -> Dict:
 		if character is '.':
@@ -54,6 +69,27 @@ class Board:
 				x += 1
 			y += 1
 	
+	def getCellsFromRay(self, sourceCellCoordinates: List, direction: List, distance: int) -> List:
+		cellIndices = []
+		
+		cellCoordinates = sourceCellCoordinates.copy()
+
+		for offset in range(distance):
+			cellCoordinates[0] += direction[0]
+			cellCoordinates[1] += direction[1]
+			if not self.areCellCoordinatesOnBoard(cellCoordinates):
+				break
+
+			cellIndex = self.getCellIndexFromCoordinates(cellCoordinates)
+
+			cellIndices.append(cellIndex)
+
+			# Stop after meeting a piece.
+			if self.cellPieceTypes[cellIndex] != -1:
+				break
+		
+		return cellIndices
+
 	def getValidMoveCellIndices(self, cellIndex: int) -> List:
 		pieceType = self.cellPieceTypes[cellIndex]
 		piece = self.pieceSet.pieces[pieceType]

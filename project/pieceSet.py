@@ -25,19 +25,35 @@ class PawnChessPiece(Piece):
 
 		self.character = 'P'
 
-	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List:
 		possibleMoves = []
 
-		yStep = -1 if teamIndex == 0 else 1
-
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
-		cellCoordinates[1] += yStep
-		if (cellCoordinates[1] >= 0) and (cellCoordinates[1] < board.cellHeight):
-			destinationCellIndex = board.getCellIndexFromCoordinates(cellCoordinates)
-			if board.cellPieceTeams[destinationCellIndex] != teamIndex:
-				possibleMoves.append(destinationCellIndex)
+
+		# Move forward
+		moveDirection = [0, 1]
+		if teamIndex == 0:
+			moveDirection[1] *= -1
+		
+		moveDistance = 2 if self.getRank(board, cellCoordinates, teamIndex) == 2 else 1
+
+		rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, moveDistance)
+		possibleMoves += list(filter(lambda cellIndex: board.isCellEmpty(cellIndex), rayCells))
+		
+		# Attack forward left
+		moveDirection[0] = -1
+		rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, 1)
+		possibleMoves += list(filter(lambda cellIndex: board.doesCellHaveOpponentPiece(cellIndex, teamIndex), rayCells))
+
+		# Attack forward right
+		moveDirection[0] = 1
+		rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, 1)
+		possibleMoves += list(filter(lambda cellIndex: board.doesCellHaveOpponentPiece(cellIndex, teamIndex), rayCells))
 
 		return possibleMoves
+	
+	def getRank(self, board: Board, cellCoordinates: List, teamIndex: int) -> int:
+		return board.cellHeight - cellCoordinates[1] if teamIndex == 0 else cellCoordinates[1] + 1
 
 class RookChessPiece(Piece):
 	def __init__(self):
