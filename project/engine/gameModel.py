@@ -20,5 +20,5 @@ class GameModel(Observer):
 		self.notify("gameStarted")
 
 	def endGame(self) -> None:
-		self.notify("gameEnded", 0)
+		self.notify("gameEnded")
 	

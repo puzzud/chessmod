@@ -11,6 +11,7 @@ class ClGameView(GameView):
 
 		self.signalHandlers = {
 			"gameInitialized": self.onGameInitialized,
+			"gameEnded": self.onGameEnded,
 			"turnStarted": self.onTurnStarted,
 			"turnEnded" : self.onTurnEnded,
 			"pieceActivated": self.onPieceActivated,
@@ -21,6 +22,7 @@ class ClGameView(GameView):
 
 		self.attach(self.gameModel, "cellSelected")
 		self.gameModel.attach(self, "gameInitialized")
+		self.gameModel.attach(self, "gameEnded")
 		self.gameModel.attach(self, "turnStarted")
 		self.gameModel.attach(self, "turnEnded")
 		self.gameModel.attach(self, "pieceActivated")
@@ -45,15 +47,16 @@ class ClGameView(GameView):
 	def onGameInitialized(self, payload: None) -> None:
 		pass
 
-	def onTurnStarted(self, payload: None) -> None:
-		print("Turn: " + self.chessGameModel.teamNames[self.chessGameModel.currentTurnTeamIndex])
-
-	def onTurnEnded(self, payload: None) -> None:
-		pass
-	
 	def onGameEnded(self, winningTeamIndex: int) -> None:
 		print("Game Ended")
 		print("Winner: " + self.chessGameModel.teamNames[winningTeamIndex])
+
+	def onTurnStarted(self, payload: None) -> None:
+		#print("Turn: " + self.chessGameModel.teamNames[self.chessGameModel.currentTurnTeamIndex])
+		pass
+
+	def onTurnEnded(self, payload: None) -> None:
+		pass
 
 	def onPieceActivated(self, cellIndex: int) -> None:
 		#piece = self.chessGameModel.board.getPiece(cellIndex)
