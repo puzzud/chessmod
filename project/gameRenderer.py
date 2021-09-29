@@ -15,6 +15,7 @@ class GameRenderer(Observer):
 		self.signalHandlers = {
 			"gameInitialized": self.onGameInitialized,
 			"pointerDown": self.onPointerDown,
+			"turnStarted": self.onTurnStarted,
 			"turnEnded" : self.onTurnEnded,
 			"pieceActivated": self.onPieceActivated,
 			"pieceDeactivated": self.onPieceDeactivated
@@ -23,6 +24,7 @@ class GameRenderer(Observer):
 		self.gameLogic = gameLogic
 		self.attach(gameLogic, "cellSelected")
 		gameLogic.attach(self, "gameInitialized")
+		gameLogic.attach(self, "turnStarted")
 		gameLogic.attach(self, "turnEnded")
 		gameLogic.attach(self, "pieceActivated")
 		gameLogic.attach(self, "pieceDeactivated")
@@ -51,6 +53,9 @@ class GameRenderer(Observer):
 		self.boardOverlaySurface = None
 
 		self.pieceIconSurfaces = []
+
+		self.playerListFont = None
+		self.playerListSurface = None
 	
 	def __del__(self):
 		pygame.quit()
@@ -69,7 +74,7 @@ class GameRenderer(Observer):
 		cellIndex = (cellY * boardCellWidth) + cellX
 		return cellIndex
 
-	def renderPieceIconSurfaces(self, font) -> List:
+	def renderPieceIconSurfaces(self, font: pygame.font) -> List:
 		pieceIconSurfaces = []
 
 		for teamIndex in range(2):
@@ -98,12 +103,26 @@ class GameRenderer(Observer):
 				
 				pygame.draw.rect(self.boardOverlaySurface, cellColor, pygame.Rect(x * self.cellPixelWidth, y * self.cellPixelHeight, self.cellPixelWidth, self.cellPixelHeight))
 
+	def renderPlayerList(self) -> None:
+		self.playerListSurface.fill((0, 0, 0, 0))
+		
+		playerListEntrySize = 64 # TODO: Draw from member.
+		
+		for teamIndex in range(len(self.gameLogic.teamNames)):
+			teamName = self.gameLogic.teamNames[teamIndex]
+			if teamIndex == self.gameLogic.currentTurnTeamIndex:
+				teamName += " <"
+
+			teamNameSurface = self.playerListFont.render(teamName, True, (255, 255, 255))
+			self.playerListSurface.blit(teamNameSurface, (0, playerListEntrySize * teamIndex))
+	
 	def draw(self) -> None:
 		self.screen.fill(self.backgroundColor)
 		
 		board = self.gameLogic.board
 		self.drawBoard(board)
 		self.drawPieces(board)
+		self.drawPlayerList()
 
 		pygame.display.update()
 
@@ -141,10 +160,13 @@ class GameRenderer(Observer):
 		cellTop = cellY * self.cellPixelHeight
 
 		self.screen.blit(pieceIconSurface, (cellLeft, cellTop))
+	
+	def drawPlayerList(self) -> None:
+		self.screen.blit(self.playerListSurface, ((self.cellPixelWidth * self.gameLogic.board.cellWidth) + 64, 0))
 
 	def onGameInitialized(self, payload: None) -> None:
-		font = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
-		self.pieceIconSurfaces = self.renderPieceIconSurfaces(font)
+		pieceCharacterFont = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
+		self.pieceIconSurfaces = self.renderPieceIconSurfaces(pieceCharacterFont)
 
 		self.boardOverlaySurface = pygame.Surface([self.cellPixelWidth * self.gameLogic.board.cellWidth, self.cellPixelHeight * self.gameLogic.board.cellHeight], pygame.SRCALPHA, 32)
 		self.boardOverlaySurface.convert_alpha()
@@ -153,6 +175,11 @@ class GameRenderer(Observer):
 		numberOfCells = self.gameLogic.board.cellWidth * self.gameLogic.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 
+		self.playerListFont = pygame.font.SysFont("", 64)
+		self.playerListSurface = pygame.Surface([256, 64 * len(self.gameLogic.teamNames)], pygame.SRCALPHA, 32)
+		self.playerListSurface.convert_alpha()
+		self.playerListSurface.fill((0, 0, 0, 0))
+
 		self.draw()
 
 	def onPointerDown(self, position: List) -> None:
@@ -160,6 +187,14 @@ class GameRenderer(Observer):
 		cellIndex = self.getCellIndexFromPoint(position)
 		if cellIndex > -1:
 			self.notify("cellSelected", cellIndex)
+
+	def onTurnStarted(self, payload: None) -> None:
+		numberOfCells = self.gameLogic.board.cellWidth * self.gameLogic.board.cellHeight
+		self.boardOverlayCellStates = [0] * numberOfCells
+
+		self.renderBoardOverlay()
+		self.renderPlayerList()
+		self.draw()
 
 	def onTurnEnded(self, payload: None) -> None:
 		numberOfCells = self.gameLogic.board.cellWidth * self.gameLogic.board.cellHeight

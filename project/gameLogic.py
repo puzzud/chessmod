@@ -12,6 +12,11 @@ class GameLogic(Observer):
 			"cellSelected": self.onCellSelected
 		}
 
+		self.teamNames = [
+			"White",
+			"Black"
+		]
+
 		self.board = Board(8, 8, pieceSet.ChessPieceSet())
 
 		self.currentTurnTeamIndex = 0
@@ -45,6 +50,8 @@ class GameLogic(Observer):
 		)
 
 		self.notify("gameInitialized")
+		
+		self.startGame()
 
 		return 0
 
@@ -87,25 +94,44 @@ class GameLogic(Observer):
 
 		self.notify("pieceMoved", [fromCellIndex, toCellIndex])
 
-	def endTurn(self) -> None:
-		self.currentTurnTeamIndex = (self.currentTurnTeamIndex + 1) % 2
+	def startTurn(self) -> None:
 		self.turnStateId = 0
+		self.validCellIndices = []
+		self.activatedPieceCellIndex = -1
 
+		print("Turn: " + self.teamNames[self.currentTurnTeamIndex])
+
+		self.notify("turnStarted")
+
+	def endTurn(self) -> None:
 		self.notify("turnEnded")
 
-		self.checkForEndOfGame()
+		if not self.checkForEndOfGame():
+			self.currentTurnTeamIndex = (self.currentTurnTeamIndex + 1) % len(self.teamNames)
+			self.startTurn()
 	
+	def startGame(self) -> None:
+		self.currentTurnTeamIndex = 0
+		self.phaseId = 0
+
+		self.notify("gameStarted")
+
+		self.startTurn()
+
 	def endGame(self) -> None:
 		winningTeamIndex = self.board.cellPieceTeams[self.getAllKingsOnBoard()[0]]
 
 		print("Game Ended")
-		print("Winner: " + str(winningTeamIndex))
+		print("Winner: " + self.teamNames[winningTeamIndex])
 
 		self.notify("gameEnded", winningTeamIndex)
 
-	def checkForEndOfGame(self) -> None:
+	def checkForEndOfGame(self) -> bool:
 		if len(self.getAllKingsOnBoard()) == 1:
 			self.endGame()
+			return True
+		
+		return False
 
 	def onCellSelected(self, cellIndex: int) -> None:
 		isValidCell = False
