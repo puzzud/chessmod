@@ -62,19 +62,14 @@ class GuiGameView(GameView):
 		pygame.quit()
 		super().__del__()
 
+	def getCellCoordinatesFromPoint(self, position: List) -> List:
+		return [
+			int(position[0] / self.cellPixelWidth),
+			int(position[1] / self.cellPixelHeight)
+		]
+
 	def getCellIndexFromPoint(self, position: List) -> int:
-		boardCellWidth = self.chessGameModel.board.cellWidth
-		
-		cellX = int(position[0] / self.cellPixelWidth)
-		if cellX >= boardCellWidth:
-			return -1
-
-		cellY = int(position[1] / self.cellPixelHeight)
-		if cellY >= self.chessGameModel.board.cellHeight:
-			return -1
-
-		cellIndex = (cellY * boardCellWidth) + cellX
-		return cellIndex
+		return self.chessGameModel.board.getCellIndexFromCoordinates(self.getCellCoordinatesFromPoint(position))
 
 	def renderPieceIconSurfaces(self, font: pygame.font) -> List:
 		pieceIconSurfaces = []

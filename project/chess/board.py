@@ -20,6 +20,12 @@ class Board:
 		]
 
 	def getCellIndexFromCoordinates(self, cellCoordinates: List) -> int:
+		if cellCoordinates[0] >= self.cellWidth:
+			return -1
+
+		if cellCoordinates[1] >= self.cellHeight:
+			return -1
+
 		return (cellCoordinates[1] * self.cellWidth) + cellCoordinates[0]
 
 	def areCellCoordinatesOnBoard(self, cellCoordinates: List) -> bool:
