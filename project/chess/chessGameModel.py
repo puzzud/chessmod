@@ -59,18 +59,12 @@ class ChessGameModel(GameModel):
 		self.activatedPieceCellIndex = cellIndex
 		self.turnStateId = 1
 		
-		#print("Activated Piece: " + str(pieceTypeIndex))
-
 		self.notify("pieceActivated", cellIndex)
-
-		#piece = self.board.getPiece(cellIndex)
 
 	def deactivatePiece(self, cellIndex: int) -> None:
 		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
 		self.activatedPieceCellIndex = -1
 		self.turnStateId = 0
-
-		#print("Deactivated Piece: " + str(pieceTypeIndex))
 
 		self.notify("pieceDeactivated", cellIndex)
 
@@ -86,16 +80,12 @@ class ChessGameModel(GameModel):
 
 		self.activatedPieceCellIndex = -1
 
-		#print("Moved Piece: " + str(pieceTypeIndex))
-
 		self.notify("pieceMoved", [fromCellIndex, toCellIndex])
 
 	def startTurn(self) -> None:
 		self.turnStateId = 0
 		self.validCellIndices = []
 		self.activatedPieceCellIndex = -1
-
-		print("Turn: " + self.teamNames[self.currentTurnTeamIndex])
 
 		self.notify("turnStarted")
 
@@ -116,9 +106,6 @@ class ChessGameModel(GameModel):
 
 	def endGame(self) -> None:
 		winningTeamIndex = self.board.cellPieceTeams[self.getAllKingsOnBoard()[0]]
-
-		print("Game Ended")
-		print("Winner: " + self.teamNames[winningTeamIndex])
 
 		self.notify("gameEnded", winningTeamIndex)
 
@@ -151,7 +138,5 @@ class ChessGameModel(GameModel):
 						self.endTurn()
 
 		if not isValidCell:
-			print("Invalid Selection: " + str(cellIndex))
-
 			self.notify("invalidCellSelected", cellIndex)
 		

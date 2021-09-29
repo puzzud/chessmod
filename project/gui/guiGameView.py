@@ -28,6 +28,8 @@ class GuiGameView(GameView):
 		self.gameModel.attach(self, "pieceActivated")
 		self.gameModel.attach(self, "pieceDeactivated")
 
+		self.chessGameModel = chessGameModel
+
 		self.cellPixelWidth = 64
 		self.cellPixelHeight = 64
 
@@ -58,6 +60,7 @@ class GuiGameView(GameView):
 	
 	def __del__(self):
 		pygame.quit()
+		super().__del__()
 
 	def getCellIndexFromPoint(self, position: List) -> int:
 		boardCellWidth = self.gameModel.board.cellWidth
