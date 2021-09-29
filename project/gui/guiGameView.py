@@ -63,14 +63,14 @@ class GuiGameView(GameView):
 		super().__del__()
 
 	def getCellIndexFromPoint(self, position: List) -> int:
-		boardCellWidth = self.gameModel.board.cellWidth
+		boardCellWidth = self.chessGameModel.board.cellWidth
 		
 		cellX = int(position[0] / self.cellPixelWidth)
 		if cellX >= boardCellWidth:
 			return -1
 
 		cellY = int(position[1] / self.cellPixelHeight)
-		if cellY >= self.gameModel.board.cellHeight:
+		if cellY >= self.chessGameModel.board.cellHeight:
 			return -1
 
 		cellIndex = (cellY * boardCellWidth) + cellX
@@ -83,8 +83,8 @@ class GuiGameView(GameView):
 			teamPieceIconSurfaces = []
 
 			pieceColor = self.pieceColors[teamIndex]
-			for pieceIndex in range(len(self.gameModel.board.pieceSet.pieces)):
-				piece = self.gameModel.board.pieceSet.pieces[pieceIndex]
+			for pieceIndex in range(len(self.chessGameModel.board.pieceSet.pieces)):
+				piece = self.chessGameModel.board.pieceSet.pieces[pieceIndex]
 				pieceIconSurface = font.render(piece.character, True, self.pieceColors[teamIndex])
 				teamPieceIconSurfaces.append(pieceIconSurface)
 			
@@ -93,9 +93,9 @@ class GuiGameView(GameView):
 		return pieceIconSurfaces
 
 	def renderBoardOverlay(self) -> None:
-		for y in range(0, self.gameModel.board.cellHeight):
-			for x in range(0, self.gameModel.board.cellWidth):
-				cellIndex = (y * self.gameModel.board.cellWidth) + x
+		for y in range(0, self.chessGameModel.board.cellHeight):
+			for x in range(0, self.chessGameModel.board.cellWidth):
+				cellIndex = (y * self.chessGameModel.board.cellWidth) + x
 				
 				cellColor = None
 				if self.boardOverlayCellStates[cellIndex] == 0:
@@ -110,9 +110,9 @@ class GuiGameView(GameView):
 		
 		playerListEntrySize = 64 # TODO: Draw from member.
 		
-		for teamIndex in range(len(self.gameModel.teamNames)):
-			teamName = self.gameModel.teamNames[teamIndex]
-			if teamIndex == self.gameModel.currentTurnTeamIndex:
+		for teamIndex in range(len(self.chessGameModel.teamNames)):
+			teamName = self.chessGameModel.teamNames[teamIndex]
+			if teamIndex == self.chessGameModel.currentTurnTeamIndex:
 				teamName += " <"
 
 			teamNameSurface = self.playerListFont.render(teamName, True, (255, 255, 255))
@@ -121,7 +121,7 @@ class GuiGameView(GameView):
 	def draw(self) -> None:
 		self.screen.fill(self.backgroundColor)
 		
-		board = self.gameModel.board
+		board = self.chessGameModel.board
 		self.drawBoard(board)
 		self.drawPieces(board)
 		self.drawPlayerList()
@@ -164,21 +164,21 @@ class GuiGameView(GameView):
 		self.screen.blit(pieceIconSurface, (cellLeft, cellTop))
 	
 	def drawPlayerList(self) -> None:
-		self.screen.blit(self.playerListSurface, ((self.cellPixelWidth * self.gameModel.board.cellWidth) + 64, 0))
+		self.screen.blit(self.playerListSurface, ((self.cellPixelWidth * self.chessGameModel.board.cellWidth) + 64, 0))
 
 	def onGameInitialized(self, payload: None) -> None:
 		pieceCharacterFont = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
 		self.pieceIconSurfaces = self.renderPieceIconSurfaces(pieceCharacterFont)
 
-		self.boardOverlaySurface = pygame.Surface([self.cellPixelWidth * self.gameModel.board.cellWidth, self.cellPixelHeight * self.gameModel.board.cellHeight], pygame.SRCALPHA, 32)
+		self.boardOverlaySurface = pygame.Surface([self.cellPixelWidth * self.chessGameModel.board.cellWidth, self.cellPixelHeight * self.chessGameModel.board.cellHeight], pygame.SRCALPHA, 32)
 		self.boardOverlaySurface.convert_alpha()
 		self.boardOverlaySurface.fill((0, 0, 0, 0))
 
-		numberOfCells = self.gameModel.board.cellWidth * self.gameModel.board.cellHeight
+		numberOfCells = self.chessGameModel.board.cellWidth * self.chessGameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 
 		self.playerListFont = pygame.font.SysFont("", 64)
-		self.playerListSurface = pygame.Surface([256, 64 * len(self.gameModel.teamNames)], pygame.SRCALPHA, 32)
+		self.playerListSurface = pygame.Surface([256, 64 * len(self.chessGameModel.teamNames)], pygame.SRCALPHA, 32)
 		self.playerListSurface.convert_alpha()
 		self.playerListSurface.fill((0, 0, 0, 0))
 
@@ -191,7 +191,7 @@ class GuiGameView(GameView):
 			self.notify("cellSelected", cellIndex)
 
 	def onTurnStarted(self, payload: None) -> None:
-		numberOfCells = self.gameModel.board.cellWidth * self.gameModel.board.cellHeight
+		numberOfCells = self.chessGameModel.board.cellWidth * self.chessGameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 
 		self.renderBoardOverlay()
@@ -199,14 +199,14 @@ class GuiGameView(GameView):
 		self.draw()
 
 	def onTurnEnded(self, payload: None) -> None:
-		numberOfCells = self.gameModel.board.cellWidth * self.gameModel.board.cellHeight
+		numberOfCells = self.chessGameModel.board.cellWidth * self.chessGameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 
 		self.renderBoardOverlay()
 		self.draw()
 	
 	def onPieceActivated(self, cellIndex) -> None:
-		for validCellIndex in self.gameModel.board.getValidMoveCellIndices(cellIndex):
+		for validCellIndex in self.chessGameModel.board.getValidMoveCellIndices(cellIndex):
 			self.boardOverlayCellStates[validCellIndex] = 2
 
 		self.boardOverlayCellStates[cellIndex] = 1
@@ -215,7 +215,7 @@ class GuiGameView(GameView):
 		self.draw()
 
 	def onPieceDeactivated(self, cellIndex) -> None:
-		numberOfCells = self.gameModel.board.cellWidth * self.gameModel.board.cellHeight
+		numberOfCells = self.chessGameModel.board.cellWidth * self.chessGameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 		
 		self.renderBoardOverlay()
