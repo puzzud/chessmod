@@ -42,7 +42,7 @@ class ClGameView(GameView):
 	def drawBoard(self, board: Board) -> None:
 		for y in range(0, board.cellHeight):
 			for x in range(0, board.cellWidth):
-				cellIndex = (y * board.cellWidth) + x
+				cellIndex = board.getCellIndexFromCoordinates([x, y])
 
 	def onGameInitialized(self, payload: None) -> None:
 		pass

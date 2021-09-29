@@ -90,7 +90,7 @@ class GuiGameView(GameView):
 	def renderBoardOverlay(self) -> None:
 		for y in range(0, self.chessGameModel.board.cellHeight):
 			for x in range(0, self.chessGameModel.board.cellWidth):
-				cellIndex = (y * self.chessGameModel.board.cellWidth) + x
+				cellIndex = self.chessGameModel.board.getCellIndexFromCoordinates([x, y])
 				
 				cellColor = None
 				if self.boardOverlayCellStates[cellIndex] == 0:
@@ -126,7 +126,7 @@ class GuiGameView(GameView):
 	def drawBoard(self, board: Board) -> None:
 		for y in range(0, board.cellHeight):
 			for x in range(0, board.cellWidth):
-				cellIndex = (y * board.cellWidth) + x
+				cellIndex = self.chessGameModel.board.getCellIndexFromCoordinates([x, y])
 				
 				cellColor = None
 				if (cellIndex % 2) == (y % 2):
@@ -144,7 +144,7 @@ class GuiGameView(GameView):
 	def drawPieces(self, board: Board) -> None:
 		for y in range(0, board.cellHeight):
 			for x in range(0, board.cellWidth):
-				cellIndex = (y * board.cellWidth) + x
+				cellIndex = board.getCellIndexFromCoordinates([x, y])
 
 				cellPieceType = board.cellPieceTypes[cellIndex]
 				if cellPieceType is not -1:
