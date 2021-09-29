@@ -3,17 +3,13 @@ from typing import List
 import pygame
 from pygame.locals import *
 
-from observer import Observer
-from gameLogic import GameLogic
-from gameRenderer import GameRenderer
+from engine.gameController import GameController
+from engine.gameModel import GameModel
+from gui.guiGameView import GuiGameView
 
-class GameController(Observer):
-	def __init__(self, gameLogic: GameLogic, gameRenderer: GameRenderer):
-		super().__init__()
-
-		self.signalHandlers = {
-			"gameEnded": self.onGameEnded
-		}
+class GuiGameController(GameController):
+	def __init__(self, gameModel: GameModel, guiGameView: GuiGameView):
+		super().__init__(gameModel)
 
 		self.eventHandlers = {
 			pygame.QUIT: self.onQuitEvent,
@@ -23,8 +19,7 @@ class GameController(Observer):
 			pygame.MOUSEBUTTONUP: self.onMouseEvent
 		}
 
-		self.attach(gameRenderer, "pointerDown")
-		gameLogic.attach(self, "gameEnded")
+		self.attach(guiGameView, "pointerDown")
 
 		self.running = False
 	
@@ -35,9 +30,6 @@ class GameController(Observer):
 			self.proccessEvents()
 		
 		return 0
-
-	def onGameEnded(self, winningTeamIndex: int) -> None:
-		self.running = False
 
 	def proccessEvents(self) -> None:
 		for event in pygame.event.get():

@@ -1,14 +1,15 @@
-from gameLogic import GameLogic
-from gameRenderer import GameRenderer
-from gameController import GameController
+from chess.chessGameModel import ChessGameModel
+from gui.guiGameView import GuiGameView
+from gui.guiGameController import GuiGameController
 
 def main() -> None:
-	gameLogic = GameLogic()
-	gameRenderer = GameRenderer(gameLogic)
-	gameController = GameController(gameLogic, gameRenderer)
+	gameModel = ChessGameModel()
+	
+	guiGameView = GuiGameView(gameModel)
+	guiGameController = GuiGameController(gameModel, guiGameView)
 
-	gameLogic.initialize()
-	gameController.loop()
-	gameLogic.shutdown()
+	gameModel.initialize()
+	guiGameController.loop()
+	gameModel.shutdown()
 
 main()

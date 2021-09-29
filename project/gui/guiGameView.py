@@ -3,14 +3,14 @@ from typing import List
 import pygame
 from pygame.locals import *
 
-from observer import Observer
-from gameLogic import GameLogic
+from engine.gameView import GameView
+from chess.chessGameModel import ChessGameModel
 
-class GameRenderer(Observer):
-	from board import Board
+class GuiGameView(GameView):
+	from chess.board import Board
 	
-	def __init__(self, gameLogic: GameLogic):
-		super().__init__()
+	def __init__(self, chessGameModel: ChessGameModel):
+		super().__init__(chessGameModel)
 
 		self.signalHandlers = {
 			"gameInitialized": self.onGameInitialized,
@@ -21,13 +21,12 @@ class GameRenderer(Observer):
 			"pieceDeactivated": self.onPieceDeactivated
 		}
 
-		self.gameLogic = gameLogic
-		self.attach(gameLogic, "cellSelected")
-		gameLogic.attach(self, "gameInitialized")
-		gameLogic.attach(self, "turnStarted")
-		gameLogic.attach(self, "turnEnded")
-		gameLogic.attach(self, "pieceActivated")
-		gameLogic.attach(self, "pieceDeactivated")
+		self.attach(self.gameModel, "cellSelected")
+		self.gameModel.attach(self, "gameInitialized")
+		self.gameModel.attach(self, "turnStarted")
+		self.gameModel.attach(self, "turnEnded")
+		self.gameModel.attach(self, "pieceActivated")
+		self.gameModel.attach(self, "pieceDeactivated")
 
 		self.cellPixelWidth = 64
 		self.cellPixelHeight = 64
@@ -61,14 +60,14 @@ class GameRenderer(Observer):
 		pygame.quit()
 
 	def getCellIndexFromPoint(self, position: List) -> int:
-		boardCellWidth = self.gameLogic.board.cellWidth
+		boardCellWidth = self.gameModel.board.cellWidth
 		
 		cellX = int(position[0] / self.cellPixelWidth)
 		if cellX >= boardCellWidth:
 			return -1
 
 		cellY = int(position[1] / self.cellPixelHeight)
-		if cellY >= self.gameLogic.board.cellHeight:
+		if cellY >= self.gameModel.board.cellHeight:
 			return -1
 
 		cellIndex = (cellY * boardCellWidth) + cellX
@@ -81,8 +80,8 @@ class GameRenderer(Observer):
 			teamPieceIconSurfaces = []
 
 			pieceColor = self.pieceColors[teamIndex]
-			for pieceIndex in range(len(self.gameLogic.board.pieceSet.pieces)):
-				piece = self.gameLogic.board.pieceSet.pieces[pieceIndex]
+			for pieceIndex in range(len(self.gameModel.board.pieceSet.pieces)):
+				piece = self.gameModel.board.pieceSet.pieces[pieceIndex]
 				pieceIconSurface = font.render(piece.character, True, self.pieceColors[teamIndex])
 				teamPieceIconSurfaces.append(pieceIconSurface)
 			
@@ -91,9 +90,9 @@ class GameRenderer(Observer):
 		return pieceIconSurfaces
 
 	def renderBoardOverlay(self) -> None:
-		for y in range(0, self.gameLogic.board.cellHeight):
-			for x in range(0, self.gameLogic.board.cellWidth):
-				cellIndex = (y * self.gameLogic.board.cellWidth) + x
+		for y in range(0, self.gameModel.board.cellHeight):
+			for x in range(0, self.gameModel.board.cellWidth):
+				cellIndex = (y * self.gameModel.board.cellWidth) + x
 				
 				cellColor = None
 				if self.boardOverlayCellStates[cellIndex] == 0:
@@ -108,9 +107,9 @@ class GameRenderer(Observer):
 		
 		playerListEntrySize = 64 # TODO: Draw from member.
 		
-		for teamIndex in range(len(self.gameLogic.teamNames)):
-			teamName = self.gameLogic.teamNames[teamIndex]
-			if teamIndex == self.gameLogic.currentTurnTeamIndex:
+		for teamIndex in range(len(self.gameModel.teamNames)):
+			teamName = self.gameModel.teamNames[teamIndex]
+			if teamIndex == self.gameModel.currentTurnTeamIndex:
 				teamName += " <"
 
 			teamNameSurface = self.playerListFont.render(teamName, True, (255, 255, 255))
@@ -119,7 +118,7 @@ class GameRenderer(Observer):
 	def draw(self) -> None:
 		self.screen.fill(self.backgroundColor)
 		
-		board = self.gameLogic.board
+		board = self.gameModel.board
 		self.drawBoard(board)
 		self.drawPieces(board)
 		self.drawPlayerList()
@@ -162,21 +161,21 @@ class GameRenderer(Observer):
 		self.screen.blit(pieceIconSurface, (cellLeft, cellTop))
 	
 	def drawPlayerList(self) -> None:
-		self.screen.blit(self.playerListSurface, ((self.cellPixelWidth * self.gameLogic.board.cellWidth) + 64, 0))
+		self.screen.blit(self.playerListSurface, ((self.cellPixelWidth * self.gameModel.board.cellWidth) + 64, 0))
 
 	def onGameInitialized(self, payload: None) -> None:
 		pieceCharacterFont = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
 		self.pieceIconSurfaces = self.renderPieceIconSurfaces(pieceCharacterFont)
 
-		self.boardOverlaySurface = pygame.Surface([self.cellPixelWidth * self.gameLogic.board.cellWidth, self.cellPixelHeight * self.gameLogic.board.cellHeight], pygame.SRCALPHA, 32)
+		self.boardOverlaySurface = pygame.Surface([self.cellPixelWidth * self.gameModel.board.cellWidth, self.cellPixelHeight * self.gameModel.board.cellHeight], pygame.SRCALPHA, 32)
 		self.boardOverlaySurface.convert_alpha()
 		self.boardOverlaySurface.fill((0, 0, 0, 0))
 
-		numberOfCells = self.gameLogic.board.cellWidth * self.gameLogic.board.cellHeight
+		numberOfCells = self.gameModel.board.cellWidth * self.gameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 
 		self.playerListFont = pygame.font.SysFont("", 64)
-		self.playerListSurface = pygame.Surface([256, 64 * len(self.gameLogic.teamNames)], pygame.SRCALPHA, 32)
+		self.playerListSurface = pygame.Surface([256, 64 * len(self.gameModel.teamNames)], pygame.SRCALPHA, 32)
 		self.playerListSurface.convert_alpha()
 		self.playerListSurface.fill((0, 0, 0, 0))
 
@@ -189,7 +188,7 @@ class GameRenderer(Observer):
 			self.notify("cellSelected", cellIndex)
 
 	def onTurnStarted(self, payload: None) -> None:
-		numberOfCells = self.gameLogic.board.cellWidth * self.gameLogic.board.cellHeight
+		numberOfCells = self.gameModel.board.cellWidth * self.gameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 
 		self.renderBoardOverlay()
@@ -197,14 +196,14 @@ class GameRenderer(Observer):
 		self.draw()
 
 	def onTurnEnded(self, payload: None) -> None:
-		numberOfCells = self.gameLogic.board.cellWidth * self.gameLogic.board.cellHeight
+		numberOfCells = self.gameModel.board.cellWidth * self.gameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 
 		self.renderBoardOverlay()
 		self.draw()
 	
 	def onPieceActivated(self, cellIndex) -> None:
-		for validCellIndex in self.gameLogic.board.getValidMoveCellIndices(cellIndex):
+		for validCellIndex in self.gameModel.board.getValidMoveCellIndices(cellIndex):
 			self.boardOverlayCellStates[validCellIndex] = 2
 
 		self.boardOverlayCellStates[cellIndex] = 1
@@ -213,7 +212,7 @@ class GameRenderer(Observer):
 		self.draw()
 
 	def onPieceDeactivated(self, cellIndex) -> None:
-		numberOfCells = self.gameLogic.board.cellWidth * self.gameLogic.board.cellHeight
+		numberOfCells = self.gameModel.board.cellWidth * self.gameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 		
 		self.renderBoardOverlay()

@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-import pieceSet
+import chess.pieceSet
 
 class Board:
 	def __init__(self, cellWidth: int, cellHeight: int, _pieceSet):

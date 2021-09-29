@@ -1,6 +1,6 @@
 from typing import Dict, List
 
-from board import Board
+from chess.board import Board
 
 class Piece:
 	def __init__(self):

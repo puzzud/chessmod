@@ -1,7 +1,7 @@
 from typing import Dict, List
 
-from piece import Piece
-from board import Board
+from chess.piece import Piece
+from chess.board import Board
 
 class PieceSet():
 	def __init__(self):

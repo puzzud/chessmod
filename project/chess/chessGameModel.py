@@ -1,10 +1,10 @@
 from typing import List
 
-from observer import Observer
-import pieceSet
-from board import Board
+from engine.gameModel import GameModel
+import chess.pieceSet
+from chess.board import Board
 
-class GameLogic(Observer):
+class ChessGameModel(GameModel):
 	def __init__(self):
 		super().__init__()
 
@@ -17,7 +17,7 @@ class GameLogic(Observer):
 			"Black"
 		]
 
-		self.board = Board(8, 8, pieceSet.ChessPieceSet())
+		self.board = Board(8, 8, chess.pieceSet.ChessPieceSet())
 
 		self.currentTurnTeamIndex = 0
 		self.phaseId = 0
@@ -49,14 +49,10 @@ class GameLogic(Observer):
 			]
 		)
 
-		self.notify("gameInitialized")
-		
-		self.startGame()
-
-		return 0
+		return super().initialize()
 
 	def shutdown(self) -> int:
-		return 0
+		return super().shutdown()
 
 	def activatePiece(self, cellIndex: int) -> None:
 		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
