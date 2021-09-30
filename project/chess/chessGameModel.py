@@ -1,8 +1,17 @@
 from typing import List
 
+from enum import Enum
+
 from engine.gameModel import GameModel
 import chess.chessPieceSet
 from chess.board import Board
+
+class ChessPhaseId(Enum):
+	PLAY = 0
+
+class ChessTurnStateId(Enum):
+	PIECE_NOT_ACTIVE = 0
+	PIECE_ACTIVE = 1
 
 class ChessGameModel(GameModel):
 	def __init__(self):
@@ -20,8 +29,8 @@ class ChessGameModel(GameModel):
 		self.board = Board(8, 8, chess.chessPieceSet.ChessPieceSet())
 
 		self.currentTurnTeamIndex = 0
-		self.phaseId = 0
-		self.turnStateId = 0
+		self.phaseId = ChessPhaseId.PLAY
+		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
 		self.validCellIndices = []
 		self.activatedPieceCellIndex = -1
 
@@ -57,14 +66,14 @@ class ChessGameModel(GameModel):
 	def activatePiece(self, cellIndex: int) -> None:
 		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
 		self.activatedPieceCellIndex = cellIndex
-		self.turnStateId = 1
+		self.turnStateId = ChessTurnStateId.PIECE_ACTIVE
 		
 		self.notify("pieceActivated", cellIndex)
 
 	def deactivatePiece(self, cellIndex: int) -> None:
 		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
 		self.activatedPieceCellIndex = -1
-		self.turnStateId = 0
+		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
 
 		self.notify("pieceDeactivated", cellIndex)
 
@@ -83,7 +92,7 @@ class ChessGameModel(GameModel):
 		self.notify("pieceMoved", [fromCellIndex, toCellIndex])
 
 	def startTurn(self) -> None:
-		self.turnStateId = 0
+		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
 		self.validCellIndices = []
 		self.activatedPieceCellIndex = -1
 
@@ -98,7 +107,7 @@ class ChessGameModel(GameModel):
 	
 	def startGame(self) -> None:
 		self.currentTurnTeamIndex = 0
-		self.phaseId = 0
+		self.phaseId = ChessPhaseId.PLAY
 
 		self.notify("gameStarted")
 
@@ -119,15 +128,15 @@ class ChessGameModel(GameModel):
 	def onCellSelected(self, cellIndex: int) -> None:
 		isValidCell = False
 		
-		if self.phaseId == 0:
-			if self.turnStateId == 0:
+		if self.phaseId == ChessPhaseId.PLAY:
+			if self.turnStateId == ChessTurnStateId.PIECE_NOT_ACTIVE:
 				pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
 				if pieceTypeIndex != -1:
 					teamIndex = self.board.cellPieceTeams[cellIndex]
 					if teamIndex == self.currentTurnTeamIndex:
 						isValidCell = True
 						self.activatePiece(cellIndex)
-			elif self.turnStateId == 1:
+			elif self.turnStateId == ChessTurnStateId.PIECE_ACTIVE:
 				if cellIndex == self.activatedPieceCellIndex:
 					isValidCell = True
 					self.deactivatePiece(cellIndex)
