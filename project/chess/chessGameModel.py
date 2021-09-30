@@ -1,7 +1,7 @@
 from typing import List
 
 from engine.gameModel import GameModel
-import chess.pieceSet
+import chess.chessPieceSet
 from chess.board import Board
 
 class ChessGameModel(GameModel):
@@ -17,7 +17,7 @@ class ChessGameModel(GameModel):
 			"Black"
 		]
 
-		self.board = Board(8, 8, chess.pieceSet.ChessPieceSet())
+		self.board = Board(8, 8, chess.chessPieceSet.ChessPieceSet())
 
 		self.currentTurnTeamIndex = 0
 		self.phaseId = 0
