@@ -3,6 +3,9 @@ from typing import List
 import pygame
 from pygame.locals import *
 
+from gui.guiNode import GuiNode
+from chess.guiPlayerList import GuiPlayerList
+
 from engine.gameView import GameView
 from chess.chessGameModel import ChessGameModel
 
@@ -55,8 +58,7 @@ class GuiGameView(GameView):
 
 		self.pieceIconSurfaces = []
 
-		self.playerListFont = None
-		self.playerListSurface = None
+		self.guiPlayerList: GuiPlayerList = None
 	
 	def __del__(self):
 		pygame.quit()
@@ -99,19 +101,6 @@ class GuiGameView(GameView):
 					cellColor = (64, 64, 64, 192)
 				
 				pygame.draw.rect(self.boardOverlaySurface, cellColor, pygame.Rect(x * self.cellPixelWidth, y * self.cellPixelHeight, self.cellPixelWidth, self.cellPixelHeight))
-
-	def renderPlayerList(self) -> None:
-		self.playerListSurface.fill((0, 0, 0, 0))
-		
-		playerListEntrySize = 64 # TODO: Draw from member.
-		
-		for teamIndex in range(len(self.chessGameModel.teamNames)):
-			teamName = self.chessGameModel.teamNames[teamIndex]
-			if teamIndex == self.chessGameModel.currentTurnTeamIndex:
-				teamName += " <"
-
-			teamNameSurface = self.playerListFont.render(teamName, True, (255, 255, 255))
-			self.playerListSurface.blit(teamNameSurface, (0, playerListEntrySize * teamIndex))
 	
 	def draw(self) -> None:
 		self.screen.fill(self.backgroundColor)
@@ -119,7 +108,7 @@ class GuiGameView(GameView):
 		board = self.chessGameModel.board
 		self.drawBoard(board)
 		self.drawPieces(board)
-		self.drawPlayerList()
+		self.guiPlayerList.draw(self.screen)
 
 		pygame.display.update()
 
@@ -158,9 +147,6 @@ class GuiGameView(GameView):
 
 		self.screen.blit(pieceIconSurface, (cellLeft, cellTop))
 	
-	def drawPlayerList(self) -> None:
-		self.screen.blit(self.playerListSurface, ((self.cellPixelWidth * self.chessGameModel.board.cellWidth) + 64, 0))
-
 	def onGameInitialized(self, payload: None) -> None:
 		pieceCharacterFont = pygame.font.SysFont("", int(self.cellPixelWidth * 1.5))
 		self.pieceIconSurfaces = self.renderPieceIconSurfaces(pieceCharacterFont)
@@ -171,11 +157,8 @@ class GuiGameView(GameView):
 
 		numberOfCells = self.chessGameModel.board.cellWidth * self.chessGameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
-
-		self.playerListFont = pygame.font.SysFont("", 64)
-		self.playerListSurface = pygame.Surface([256, 64 * len(self.chessGameModel.teamNames)], pygame.SRCALPHA, 32)
-		self.playerListSurface.convert_alpha()
-		self.playerListSurface.fill((0, 0, 0, 0))
+		
+		self.guiPlayerList = GuiPlayerList([(self.cellPixelWidth * self.chessGameModel.board.cellWidth) + 64, 0], self.chessGameModel.teamNames.copy())
 
 		self.draw()
 
@@ -189,8 +172,9 @@ class GuiGameView(GameView):
 		numberOfCells = self.chessGameModel.board.cellWidth * self.chessGameModel.board.cellHeight
 		self.boardOverlayCellStates = [0] * numberOfCells
 
+		self.guiPlayerList.setActivePlayerIndex(self.chessGameModel.currentTurnTeamIndex)
+
 		self.renderBoardOverlay()
-		self.renderPlayerList()
 		self.draw()
 
 	def onTurnEnded(self, payload: None) -> None:
