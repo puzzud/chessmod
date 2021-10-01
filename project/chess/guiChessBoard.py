@@ -33,7 +33,7 @@ class GuiChessBoard(GuiNode):
 		self.boardOverlaySurface = pygame.Surface([self.cellPixelWidth * self.board.cellWidth, self.cellPixelHeight * self.board.cellHeight], pygame.SRCALPHA, 32)
 		self.boardOverlaySurface.convert_alpha()
 		self.boardOverlaySurface.fill((0, 0, 0, 0))
-		
+
 		self.boardOverlayCellStates = [0] * self.board.getNumberOfCells()
 
 		self.surface = pygame.Surface([self.board.cellWidth * self.cellPixelWidth, self.board.cellHeight * self.cellPixelHeight])
@@ -83,17 +83,40 @@ class GuiChessBoard(GuiNode):
 		return pieceIconSurfaces
 	
 	def renderBoardOverlay(self) -> None:
+		self.renderBoardOverlayBodies()
+		self.renderBoardOverlayOutlines()
+
+	def renderBoardOverlayBodies(self) -> None:
 		for y in range(0, self.board.cellHeight):
 			for x in range(0, self.board.cellWidth):
 				cellIndex = self.board.getCellIndexFromCoordinates([x, y])
 				
 				cellColor = None
-				if self.boardOverlayCellStates[cellIndex] == 0:
-					cellColor = (0, 0, 0, 0)
+				boardOverlayCellState = self.boardOverlayCellStates[cellIndex]
+				if boardOverlayCellState == 1:
+					cellColor = (64, 64, 64, 255)
+				elif boardOverlayCellState == 2:
+					cellColor = (96, 96, 96, 255)
 				else:
-					cellColor = (64, 64, 64, 192)
+					cellColor = (0, 0, 0, 0)
 				
-				pygame.draw.rect(self.boardOverlaySurface, cellColor, pygame.Rect(x * self.cellPixelWidth, y * self.cellPixelHeight, self.cellPixelWidth, self.cellPixelHeight))
+				rectangle = pygame.Rect(x * self.cellPixelWidth, y * self.cellPixelHeight, self.cellPixelWidth, self.cellPixelHeight)
+				pygame.draw.rect(self.boardOverlaySurface, cellColor, rectangle)
+		
+	def renderBoardOverlayOutlines(self) -> None:
+		for y in range(0, self.board.cellHeight):
+			for x in range(0, self.board.cellWidth):
+				cellIndex = self.board.getCellIndexFromCoordinates([x, y])
+
+				if self.boardOverlayCellStates[cellIndex] != 0:
+					rectangle = pygame.Rect(x * self.cellPixelWidth, y * self.cellPixelHeight, self.cellPixelWidth, self.cellPixelHeight)
+					linesPointCoordinates = [
+						rectangle.topleft,
+						rectangle.topright,
+						rectangle.bottomright,
+						rectangle.bottomleft
+					]
+					pygame.draw.lines(self.boardOverlaySurface, (32, 32, 32), True, linesPointCoordinates, 4)
 
 	def drawBoard(self, board: Board) -> None:
 		for y in range(0, board.cellHeight):
