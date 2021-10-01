@@ -14,6 +14,15 @@ class GuiNode():
 	def setPosition(self, position: List) -> None:
 		self.position = position.copy()
 
+	def getDimensions(self) -> List:
+		if self.surface is None:
+			return [0, 0]
+		
+		return [
+			self.surface.get_width(),
+			self.surface.get_height()
+		]
+
 	def render(self) -> None:
 		self.renderOnSelf()
 		self.renderChildrenOnSelf()

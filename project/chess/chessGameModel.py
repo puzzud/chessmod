@@ -31,7 +31,6 @@ class ChessGameModel(GameModel):
 		self.currentTurnTeamIndex = 0
 		self.phaseId = ChessPhaseId.PLAY
 		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
-		self.validCellIndices = []
 		self.activatedPieceCellIndex = -1
 
 	def getAllKingsOnBoard(self) -> List:
@@ -93,7 +92,6 @@ class ChessGameModel(GameModel):
 
 	def startTurn(self) -> None:
 		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
-		self.validCellIndices = []
 		self.activatedPieceCellIndex = -1
 
 		self.notify("turnStarted")

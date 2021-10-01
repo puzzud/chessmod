@@ -7,11 +7,14 @@ class Board:
 		self.cellWidth = cellWidth
 		self.cellHeight = cellHeight
 
-		numberOfCells = cellWidth * cellHeight
+		numberOfCells = self.getNumberOfCells()
 		self.cellPieceTypes = [-1] * numberOfCells
 		self.cellPieceTeams = [-1] * numberOfCells
 
 		self.pieceSet = _pieceSet
+
+	def getNumberOfCells(self) -> int:
+		return self.cellWidth * self.cellHeight
 
 	def getCellCoordinatesFromIndex(self, cellIndex: int) -> List:
 		return [
