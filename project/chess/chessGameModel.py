@@ -101,7 +101,7 @@ class ChessGameModel(GameModel):
 		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
 		self.activatedPieceCellIndex = -1
 
-		self.notify("turnStarted")
+		self.notify("turnStarted", self.currentTurnTeamIndex)
 
 	def endTurn(self) -> None:
 		self.notify("turnEnded")
