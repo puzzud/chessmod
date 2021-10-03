@@ -1,6 +1,12 @@
 from typing import Dict, List
+from enum import Enum
 
 import chess.pieceSet
+
+class BoardPieceActionType(Enum):
+	REMOVE_FROM_CELL = 0,
+	ADD_TO_CELL = 1,
+	MOVE_TO_CELL = 2
 
 class Board:
 	def __init__(self, cellWidth: int, cellHeight: int, _pieceSet):
@@ -108,18 +114,48 @@ class Board:
 	def isValidMoveDestination(self, sourceCellIndex: int, toCellIndex: int) -> bool:
 		return toCellIndex in self.getValidMoveCellIndices(sourceCellIndex)
 
-	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> int:
-		pieceTypeIndex = self.cellPieceTypes[fromCellIndex]
-		teamIndex = self.cellPieceTeams[fromCellIndex]
+	def executePieceActions(self, pieceActions: List) -> int:
+		for pieceAction in pieceActions:
+			pieceActionType: int = pieceAction["type"]
+			if pieceActionType == BoardPieceActionType.REMOVE_FROM_CELL:
+				cellIndex: int = pieceAction["cellIndex"]
+				self.cellPieceTypes[cellIndex] = -1
+				self.cellPieceTeams[cellIndex] = -1
+			elif pieceActionType == BoardPieceActionType.MOVE_TO_CELL:
+				fromCellIndex: int = pieceAction["fromCellIndex"]
+				toCellIndex: int = pieceAction["toCellIndex"]
+				self.cellPieceTypes[fromCellIndex] = -1
+				self.cellPieceTeams[fromCellIndex] = -1
+				self.cellPieceTypes[toCellIndex] = pieceAction["pieceType"]
+				self.cellPieceTeams[toCellIndex] = pieceAction["teamIndex"]
 		
-		self.cellPieceTypes[fromCellIndex] = -1
-		self.cellPieceTeams[fromCellIndex] = -1
+		return pieceActions
 
-		self.cellPieceTypes[toCellIndex] = pieceTypeIndex
-		self.cellPieceTeams[toCellIndex] = teamIndex
+	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> int:
+		pieceActions = [
+			{
+				"type": BoardPieceActionType.REMOVE_FROM_CELL,
+				"cellIndex": toCellIndex,
+				"pieceType": self.cellPieceTypes[toCellIndex],
+				"teamIndex": self.cellPieceTeams[toCellIndex]
+			},
+			{
+				"type": BoardPieceActionType.MOVE_TO_CELL,
+				"fromCellIndex": fromCellIndex,
+				"toCellIndex": toCellIndex,
+				"pieceType": self.cellPieceTypes[fromCellIndex],
+				"teamIndex": self.cellPieceTeams[fromCellIndex]
+			}
+		]
+	
+		self.executePieceActions(pieceActions)
 
 		return 0
 
 class ChessBoard(Board):
 	def __init__(self):
 		super().__init__(8, 8, chess.chessPieceSet.ChessPieceSet())
+
+	def getValidMoveCellIndices(self, cellIndex: int) -> List:
+		 validMoveCellIndices = super().getValidMoveCellIndices(cellIndex)
+		 return validMoveCellIndices
