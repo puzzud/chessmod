@@ -82,7 +82,7 @@ class GuiGameView(GameView):
 
 		self.draw()
 
-	def onTurnEnded(self, payload: None) -> None:
+	def onTurnEnded(self, currentTurnTeamIndex: int) -> None:
 		self.guiChessBoard.clearHighlightedCells()
 
 		self.draw()

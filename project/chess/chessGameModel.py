@@ -104,7 +104,7 @@ class ChessGameModel(GameModel):
 		self.notify("turnStarted", self.currentTurnTeamIndex)
 
 	def endTurn(self) -> None:
-		self.notify("turnEnded")
+		self.notify("turnEnded", self.currentTurnTeamIndex)
 
 		if not self.checkForEndOfGame():
 			self.currentTurnTeamIndex = (self.currentTurnTeamIndex + 1) % len(self.teamNames)
