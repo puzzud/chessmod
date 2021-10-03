@@ -4,7 +4,7 @@ from enum import Enum
 
 from engine.gameModel import GameModel
 import chess.chessPieceSet
-from chess.board import Board
+from chess.board import ChessBoard
 
 class ChessPhaseId(Enum):
 	PLAY = 0
@@ -26,7 +26,7 @@ class ChessGameModel(GameModel):
 			"Black"
 		]
 
-		self.board = Board(8, 8, chess.chessPieceSet.ChessPieceSet())
+		self.board = ChessBoard()
 
 		self.currentTurnTeamIndex = 0
 		self.phaseId = ChessPhaseId.PLAY
@@ -44,20 +44,29 @@ class ChessGameModel(GameModel):
 		return kingCellIndices
 
 	def initialize(self) -> int:
-		self.board.loadFromStringRowList(
-			[
-				"rnbqkbnr",
-				"pppppppp",
-				"........",
-				"........",
-				"........",
-				"........",
-				"PPPPPPPP",
-				"RNBQKBNR"
-			]
-		)
+		boardStringRowList = [
+			"rnbqkbnr",
+			"pppppppp",
+			"........",
+			"........",
+			"........",
+			"........",
+			"PPPPPPPP",
+			"RNBQKBNR"
+		]
 
-		return super().initialize()
+		self.board.loadFromStringRowList(boardStringRowList)
+
+		payload = {
+			"teamNames": self.teamNames.copy(),
+			"boardStringRowList": boardStringRowList.copy()
+		}
+
+		self.notify("gameInitialized", payload)
+		
+		self.startGame()
+
+		return 0
 
 	def shutdown(self) -> int:
 		return super().shutdown()
@@ -66,8 +75,13 @@ class ChessGameModel(GameModel):
 		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
 		self.activatedPieceCellIndex = cellIndex
 		self.turnStateId = ChessTurnStateId.PIECE_ACTIVE
-		
-		self.notify("pieceActivated", cellIndex)
+
+		payload = {
+			"activatedCellIndex": cellIndex,
+			"validCellIndices": self.board.getValidMoveCellIndices(cellIndex)
+		}
+
+		self.notify("pieceActivated", payload)
 
 	def deactivatePiece(self, cellIndex: int) -> None:
 		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
@@ -77,14 +91,7 @@ class ChessGameModel(GameModel):
 		self.notify("pieceDeactivated", cellIndex)
 
 	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> None:
-		pieceTypeIndex = self.board.cellPieceTypes[fromCellIndex]
-		teamIndex = self.board.cellPieceTeams[fromCellIndex]
-
-		self.board.cellPieceTypes[fromCellIndex] = -1
-		self.board.cellPieceTeams[fromCellIndex] = -1
-
-		self.board.cellPieceTypes[toCellIndex] = pieceTypeIndex
-		self.board.cellPieceTeams[toCellIndex] = teamIndex
+		self.board.movePiece(fromCellIndex, toCellIndex)
 
 		self.activatedPieceCellIndex = -1
 
@@ -146,4 +153,4 @@ class ChessGameModel(GameModel):
 
 		if not isValidCell:
 			self.notify("invalidCellSelected", cellIndex)
-		
+	

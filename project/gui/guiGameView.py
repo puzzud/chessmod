@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 import pygame
 from pygame.locals import *
@@ -9,6 +9,7 @@ from chess.guiChessBoard import GuiChessBoard
 
 from engine.gameView import GameView
 from chess.chessGameModel import ChessGameModel
+from chess.board import ChessBoard
 
 class GuiGameView(GameView):
 	from chess.board import Board
@@ -22,17 +23,18 @@ class GuiGameView(GameView):
 			"turnStarted": self.onTurnStarted,
 			"turnEnded" : self.onTurnEnded,
 			"pieceActivated": self.onPieceActivated,
-			"pieceDeactivated": self.onPieceDeactivated
+			"pieceDeactivated": self.onPieceDeactivated,
+			"pieceMoved": self.onPieceMoved
 		}
 
-		self.attach(self.gameModel, "cellSelected")
-		self.gameModel.attach(self, "gameInitialized")
-		self.gameModel.attach(self, "turnStarted")
-		self.gameModel.attach(self, "turnEnded")
-		self.gameModel.attach(self, "pieceActivated")
-		self.gameModel.attach(self, "pieceDeactivated")
-
-		self.chessGameModel = chessGameModel
+		self.attach(chessGameModel, "cellSelected")
+		
+		chessGameModel.attach(self, "gameInitialized")
+		chessGameModel.attach(self, "turnStarted")
+		chessGameModel.attach(self, "turnEnded")
+		chessGameModel.attach(self, "pieceActivated")
+		chessGameModel.attach(self, "pieceDeactivated")
+		chessGameModel.attach(self, "pieceMoved")
 
 		self.backgroundColor = (0, 0, 0)
 
@@ -50,7 +52,7 @@ class GuiGameView(GameView):
 
 	def getCellIndexFromPoint(self, position: List) -> int:
 		cellCoordinates = self.guiChessBoard.getCellCoordinatesFromPoint(position)
-		return self.chessGameModel.board.getCellIndexFromCoordinates(cellCoordinates)
+		return self.guiChessBoard.board.getCellIndexFromCoordinates(cellCoordinates)
 	
 	def draw(self) -> None:
 		self.screen.fill(self.backgroundColor)
@@ -60,9 +62,12 @@ class GuiGameView(GameView):
 
 		pygame.display.update()
 
-	def onGameInitialized(self, payload: None) -> None:
-		self.guiChessBoard = GuiChessBoard([0, 0], self.chessGameModel.board)
-		self.guiPlayerList = GuiPlayerList([self.guiChessBoard.getDimensions()[0] + 64, 0], self.chessGameModel.teamNames.copy())
+	def onGameInitialized(self, payload: Dict) -> None:
+		board = ChessBoard()
+		board.loadFromStringRowList(payload["boardStringRowList"])
+		self.guiChessBoard = GuiChessBoard([0, 0], board)
+
+		self.guiPlayerList = GuiPlayerList([self.guiChessBoard.getDimensions()[0] + 64, 0], payload["teamNames"].copy())
 
 		self.draw()
 
@@ -71,9 +76,9 @@ class GuiGameView(GameView):
 		if cellIndex > -1:
 			self.notify("cellSelected", cellIndex)
 
-	def onTurnStarted(self, payload: None) -> None:
+	def onTurnStarted(self, currentTurnTeamIndex: int) -> None:
 		self.guiChessBoard.clearHighlightedCells()
-		self.guiPlayerList.setActivePlayerIndex(self.chessGameModel.currentTurnTeamIndex)
+		self.guiPlayerList.setActivePlayerIndex(currentTurnTeamIndex)
 
 		self.draw()
 
@@ -82,8 +87,8 @@ class GuiGameView(GameView):
 
 		self.draw()
 	
-	def onPieceActivated(self, cellIndex: int) -> None:
-		self.guiChessBoard.setHighlightedCells(cellIndex, self.chessGameModel.board.getValidMoveCellIndices(cellIndex))
+	def onPieceActivated(self, payload: Dict) -> None:
+		self.guiChessBoard.setHighlightedCells(payload["activatedCellIndex"], payload["validCellIndices"])
 
 		self.draw()
 
@@ -92,3 +97,7 @@ class GuiGameView(GameView):
 
 		self.draw()
 	
+	def onPieceMoved(self, payload: List) -> None:
+		self.guiChessBoard.board.movePiece(payload[0], payload[1])
+
+		self.draw()

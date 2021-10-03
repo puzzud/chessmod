@@ -7,7 +7,7 @@ class GameModel(Observer):
 		super().__init__()
 
 	def initialize(self) -> int:
-		self.notify("gameInitialized")
+		self.notify("gameInitialized", {})
 		
 		self.startGame()
 

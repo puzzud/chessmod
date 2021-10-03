@@ -104,6 +104,22 @@ class Board:
 		piece = self.pieceSet.pieces[pieceType]
 		return piece.getPossibleMoves(self, cellIndex, self.cellPieceTeams[cellIndex])
 
-	def isValidMoveDestination(self, sourceCellIndex: int, destinationCellIndex: int) -> bool:
-		return destinationCellIndex in self.getValidMoveCellIndices(sourceCellIndex)
-	
+	# TODO: Should be in model?
+	def isValidMoveDestination(self, sourceCellIndex: int, toCellIndex: int) -> bool:
+		return toCellIndex in self.getValidMoveCellIndices(sourceCellIndex)
+
+	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> int:
+		pieceTypeIndex = self.cellPieceTypes[fromCellIndex]
+		teamIndex = self.cellPieceTeams[fromCellIndex]
+		
+		self.cellPieceTypes[fromCellIndex] = -1
+		self.cellPieceTeams[fromCellIndex] = -1
+
+		self.cellPieceTypes[toCellIndex] = pieceTypeIndex
+		self.cellPieceTeams[toCellIndex] = teamIndex
+
+		return 0
+
+class ChessBoard(Board):
+	def __init__(self):
+		super().__init__(8, 8, chess.chessPieceSet.ChessPieceSet())
