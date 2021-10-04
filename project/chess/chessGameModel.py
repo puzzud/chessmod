@@ -4,7 +4,7 @@ from enum import Enum
 
 from engine.gameModel import GameModel
 import chess.chessPieceSet
-from chess.board import ChessBoard
+from chess.chessBoard import ChessBoard
 
 class ChessPhaseId(Enum):
 	PLAY = 0
@@ -32,16 +32,6 @@ class ChessGameModel(GameModel):
 		self.phaseId = ChessPhaseId.PLAY
 		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
 		self.activatedPieceCellIndex = -1
-
-	def getAllKingsOnBoard(self) -> List:
-		kingCellIndices = []
-
-		pieceType = self.board.pieceSet.KingPieceType
-		for cellIndex in range(len(self.board.cellPieceTypes)):
-			if self.board.cellPieceTypes[cellIndex] == pieceType:
-				kingCellIndices.append(cellIndex)
-
-		return kingCellIndices
 
 	def initialize(self) -> int:
 		boardStringRowList = [
@@ -119,12 +109,12 @@ class ChessGameModel(GameModel):
 		self.startTurn()
 
 	def endGame(self) -> None:
-		winningTeamIndex = self.board.cellPieceTeams[self.getAllKingsOnBoard()[0]]
+		winningTeamIndex = self.board.cellPieceTeams[self.board.getAllKingIndices()[0]]
 
 		self.notify("gameEnded", winningTeamIndex)
 
 	def checkForEndOfGame(self) -> bool:
-		if len(self.getAllKingsOnBoard()) == 1:
+		if len(self.board.getAllKingIndices()) == 1:
 			self.endGame()
 			return True
 		

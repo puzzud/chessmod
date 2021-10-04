@@ -110,14 +110,31 @@ class Board:
 		piece = self.pieceSet.pieces[pieceType]
 		return piece.getPossibleMoves(self, cellIndex, self.cellPieceTeams[cellIndex])
 
-	# TODO: Should be in model?
 	def isValidMoveDestination(self, sourceCellIndex: int, toCellIndex: int) -> bool:
 		return toCellIndex in self.getValidMoveCellIndices(sourceCellIndex)
+
+	def reversePieceActions(self, pieceActions: List) -> List:
+		pieceActions.reverse()
+		for pieceAction in pieceActions:
+			pieceActionType: int = pieceAction["type"]
+			if pieceActionType == BoardPieceActionType.REMOVE_FROM_CELL:
+				pieceAction["type"] = BoardPieceActionType.ADD_TO_CELL
+			elif pieceActionType == BoardPieceActionType.MOVE_TO_CELL:
+				fromCellIndex: int = pieceAction["fromCellIndex"]
+				toCellIndex: int = pieceAction["toCellIndex"]
+				pieceAction["toCellIndex"] = fromCellIndex
+				pieceAction["fromCellIndex"] = toCellIndex
+
+		return pieceActions
 
 	def executePieceActions(self, pieceActions: List) -> int:
 		for pieceAction in pieceActions:
 			pieceActionType: int = pieceAction["type"]
-			if pieceActionType == BoardPieceActionType.REMOVE_FROM_CELL:
+			if pieceActionType == BoardPieceActionType.ADD_TO_CELL:
+				cellIndex: int = pieceAction["cellIndex"]
+				self.cellPieceTypes[cellIndex] = pieceAction["pieceType"]
+				self.cellPieceTeams[cellIndex] = pieceAction["teamIndex"]
+			elif pieceActionType == BoardPieceActionType.REMOVE_FROM_CELL:
 				cellIndex: int = pieceAction["cellIndex"]
 				self.cellPieceTypes[cellIndex] = -1
 				self.cellPieceTeams[cellIndex] = -1
@@ -128,10 +145,12 @@ class Board:
 				self.cellPieceTeams[fromCellIndex] = -1
 				self.cellPieceTypes[toCellIndex] = pieceAction["pieceType"]
 				self.cellPieceTeams[toCellIndex] = pieceAction["teamIndex"]
+			else:
+				print("Board::executePieceActions - Encountered unhandled BoardPieceActionType: " + str(pieceActionType))
 		
-		return pieceActions
+		return 0
 
-	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> int:
+	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> List:
 		pieceActions = [
 			{
 				"type": BoardPieceActionType.REMOVE_FROM_CELL,
@@ -150,12 +169,4 @@ class Board:
 	
 		self.executePieceActions(pieceActions)
 
-		return 0
-
-class ChessBoard(Board):
-	def __init__(self):
-		super().__init__(8, 8, chess.chessPieceSet.ChessPieceSet())
-
-	def getValidMoveCellIndices(self, cellIndex: int) -> List:
-		 validMoveCellIndices = super().getValidMoveCellIndices(cellIndex)
-		 return validMoveCellIndices
+		return pieceActions

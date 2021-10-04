@@ -9,7 +9,7 @@ from chess.guiChessBoard import GuiChessBoard
 
 from engine.gameView import GameView
 from chess.chessGameModel import ChessGameModel
-from chess.board import ChessBoard
+from chess.chessBoard import ChessBoard
 
 class GuiGameView(GameView):
 	from chess.board import Board

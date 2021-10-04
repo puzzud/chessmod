@@ -2,7 +2,7 @@ from typing import Dict, List
 
 from engine.gameView import GameView
 from chess.chessGameModel import ChessGameModel
-from chess.board import ChessBoard
+from chess.chessBoard import ChessBoard
 
 class ClGameView(GameView):
 	from chess.board import Board
