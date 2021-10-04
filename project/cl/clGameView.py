@@ -54,7 +54,10 @@ class ClGameView(GameView):
 
 	def onGameEnded(self, winningTeamIndex: int) -> None:
 		print("Game Ended")
-		print("Winner: " + self.teamNames[winningTeamIndex])
+		if winningTeamIndex > -1:
+			print("Winner: " + self.teamNames[winningTeamIndex])
+		else:
+			print("Draw")
 
 	def onTurnStarted(self, currentTurnTeamIndex: int) -> None:
 		#print("Turn: " + self.chessGameModel.teamNames[self.chessGameModel.currentTurnTeamIndex])

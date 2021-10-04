@@ -54,19 +54,22 @@ class ChessBoard(Board):
 
 		return False
 
-	def isKingInCheckMate(self, teamIndex: int) -> bool:
-		allTeamMoveCellIndices = []
+	def isKingInCheckMate(self, currentTurnTeamIndex: int) -> bool:
+		return self.isKingInCheck(currentTurnTeamIndex) and not self.areThereValidMoves(currentTurnTeamIndex)
 
-		for allTeamMoveCellIndex in self.getAllTeamPieces(teamIndex):
-			allTeamMoveCellIndices += self.getValidMoveCellIndices(allTeamMoveCellIndex)
+	def isGameInStalemate(self, currentTurnTeamIndex: int) -> bool:
+		if self.isKingInCheck(currentTurnTeamIndex):
+			return False
 
-		return (len(allTeamMoveCellIndices) == 0)
+		return not self.areThereValidMoves(currentTurnTeamIndex)
 
 	def getCurrentMetEndOfGameCondition(self, currentTurnTeamIndex: int) -> int:
-		if self.isKingInCheckMate(currentTurnTeamIndex):
+		if self.isGameInStalemate(currentTurnTeamIndex):
+			return ChessEndGameCondition.STALEMATE
+		elif self.isKingInCheckMate(currentTurnTeamIndex):
 			return ChessEndGameCondition.CHECKMATE
-		
-		return ChessEndGameCondition.NONE
+		else:
+			return ChessEndGameCondition.NONE
 
 	def getValidMoveCellIndices(self, fromCellIndex: int) -> List:
 		validMoveCellIndices = super().getValidMoveCellIndices(fromCellIndex)
@@ -85,3 +88,12 @@ class ChessBoard(Board):
 		self.executePieceActions(pieceActions)
 
 		return putsTeamKingIntoCheck
+	
+	def areThereValidMoves(self, teamIndex: int) -> bool:
+		allTeamMoveCellIndices = []
+
+		for allTeamMoveCellIndex in self.getAllTeamPieces(teamIndex):
+			allTeamMoveCellIndices += self.getValidMoveCellIndices(allTeamMoveCellIndex)
+
+		return (len(allTeamMoveCellIndices) > 0)
+	
