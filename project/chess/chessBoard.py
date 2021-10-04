@@ -1,7 +1,13 @@
-from typing import Dict, List
+from typing import Dict, List, Set
+from enum import Enum
 
 from chess.board import Board
 import chess.pieceSet
+
+class ChessEndGameCondition(Enum):
+	NONE = -1
+	CHECKMATE = 0
+	STALEMATE = 1
 
 class ChessBoard(Board):
 	def __init__(self):
@@ -33,10 +39,6 @@ class ChessBoard(Board):
 		return list(filter(lambda cellIndex: self.cellPieceTypes[cellIndex] == self.pieceSet.KingPieceType, pieceIndices))
 
 	def isKingInCheck(self, teamIndex: int) -> bool:
-		teamKingCellIndices = self.getAllKingIndices(teamIndex)
-		if len(teamKingCellIndices) < 1:
-			return False
-
 		# Get combined list of all the valid move destination cell indices of all pieces on the other team.
 		allOpponentMoveCellIndices = []
 
@@ -46,11 +48,25 @@ class ChessBoard(Board):
 		allOpponentMoveCellIndices = set(allOpponentMoveCellIndices)
 
 		# Is this king's cell index in this list?
-		for teamKingCellIndex in teamKingCellIndices:
+		for teamKingCellIndex in self.getAllKingIndices(teamIndex):
 			if teamKingCellIndex in allOpponentMoveCellIndices:
 				return True
 
 		return False
+
+	def isKingInCheckMate(self, teamIndex: int) -> bool:
+		allTeamMoveCellIndices = []
+
+		for allTeamMoveCellIndex in self.getAllTeamPieces(teamIndex):
+			allTeamMoveCellIndices += self.getValidMoveCellIndices(allTeamMoveCellIndex)
+
+		return (len(allTeamMoveCellIndices) == 0)
+
+	def getCurrentMetEndOfGameCondition(self, currentTurnTeamIndex: int) -> int:
+		if self.isKingInCheckMate(currentTurnTeamIndex):
+			return ChessEndGameCondition.CHECKMATE
+		
+		return ChessEndGameCondition.NONE
 
 	def getValidMoveCellIndices(self, fromCellIndex: int) -> List:
 		validMoveCellIndices = super().getValidMoveCellIndices(fromCellIndex)
