@@ -5,8 +5,8 @@ from chess.board import Board
 
 class PieceSet():
 	def __init__(self):
-		self.pieceTypes = []
-		self.pieceTypeCharacters = {}
+		self.pieceTypes: list[Piece] = []
+		self.pieceTypeCharacters: Dict[Piece, str] = {}
 
 	def getTypeIdFromPieceType(self, pieceType: Piece) -> int:
 		return self.pieceTypes.index(pieceType)

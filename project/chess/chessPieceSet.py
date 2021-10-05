@@ -8,8 +8,8 @@ class PawnChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 
-	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List:
-		possibleMoves = []
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List[int]:
+		possibleMoves: list[int] = []
 
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
 
@@ -42,8 +42,8 @@ class RookChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 	
-	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
-		possibleMoves = []
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List[int]:
+		possibleMoves: list[int] = []
 
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
 
@@ -66,8 +66,8 @@ class KnightChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 	
-	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
-		possibleMoves = []
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List[int]:
+		possibleMoves: list[int] = []
 
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
 
@@ -99,8 +99,8 @@ class BishopChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 	
-	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
-		possibleMoves = []
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List[int]:
+		possibleMoves: list[int] = []
 
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
 
@@ -123,8 +123,8 @@ class QueenChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 	
-	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
-		possibleMoves = []
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List[int]:
+		possibleMoves: list[int] = []
 
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
 
@@ -151,8 +151,8 @@ class KingChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 
-	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
-		possibleMoves = []
+	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List[int]:
+		possibleMoves: list[int] = []
 
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
 
@@ -188,11 +188,11 @@ class ChessPieceSet(PieceSet):
 
 	def createPieceFromCharacter(self, character: str) -> int:
 		upperCharacter = character.upper()
-		
+
 		for pieceType in self.pieceTypes:
 			pieceCharacter = self.getCharacterFromPieceType(pieceType)
 			if pieceCharacter == upperCharacter:
-				piece = pieceType()
+				piece: Piece = pieceType()
 				piece.teamIndex = self.getTeamIndexFromCharacter(character)
 				return piece
 		return None

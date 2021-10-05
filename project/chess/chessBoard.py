@@ -104,7 +104,7 @@ class ChessBoard(Board):
 		piece = self.getPieceFromCell(fromCellIndex)
 		if isinstance(piece, chess.chessPieceSet.PawnChessPiece):
 			pawnPiece: chess.chessPieceSet.PawnChessPiece = piece
-			teamIndex = self.getPieceFromCell(fromCellIndex).teamIndex
+			teamIndex = pawnPiece.teamIndex
 			rank = pawnPiece.getRank(self, self.getCellCoordinatesFromIndex(toCellIndex), teamIndex)
 			if rank == 8:
 				pieceActions += self.getPieceActionsFromPawnPromotion(toCellIndex, pawnPiece, teamIndex)
