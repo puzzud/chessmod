@@ -60,6 +60,10 @@ class Board:
 		self.cellPieceTypes[cellIndex] = contents["pieceType"]
 		self.cellPieceTeams[cellIndex] = contents["teamIndex"]
 
+	def getPieceFromCell(self, cellIndex: int):
+		pieceType = self.cellPieceTypes[cellIndex]
+		return self.pieceSet.pieces[pieceType]
+
 	def isCellEmpty(self, cellIndex: int) -> bool:
 		return self.cellPieceTypes[cellIndex] == -1
 
@@ -119,6 +123,8 @@ class Board:
 			pieceActionType: int = pieceAction["type"]
 			if pieceActionType == BoardPieceActionType.REMOVE_FROM_CELL:
 				pieceAction["type"] = BoardPieceActionType.ADD_TO_CELL
+			elif pieceActionType == BoardPieceActionType.ADD_TO_CELL:
+				pieceAction["type"] = BoardPieceActionType.REMOVE_FROM_CELL
 			elif pieceActionType == BoardPieceActionType.MOVE_TO_CELL:
 				fromCellIndex: int = pieceAction["fromCellIndex"]
 				toCellIndex: int = pieceAction["toCellIndex"]
@@ -150,8 +156,8 @@ class Board:
 		
 		return 0
 
-	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> List:
-		pieceActions = [
+	def getPieceActionsFromMove(self, fromCellIndex: int, toCellIndex: int) -> List:
+		return [
 			{
 				"type": BoardPieceActionType.REMOVE_FROM_CELL,
 				"cellIndex": toCellIndex,
@@ -166,6 +172,9 @@ class Board:
 				"teamIndex": self.cellPieceTeams[fromCellIndex]
 			}
 		]
+
+	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> List:
+		pieceActions = self.getPieceActionsFromMove(fromCellIndex, toCellIndex)
 	
 		self.executePieceActions(pieceActions)
 

@@ -1,8 +1,9 @@
 from typing import Dict, List, Set
 from enum import Enum
 
-from chess.board import Board
+from chess.board import Board, BoardPieceActionType
 import chess.pieceSet
+import chess.chessPieceSet
 
 class ChessEndGameCondition(Enum):
 	NONE = -1
@@ -36,7 +37,7 @@ class ChessBoard(Board):
 		else:
 			pieceIndices = self.getAllPieces()
 
-		return list(filter(lambda cellIndex: self.cellPieceTypes[cellIndex] == self.pieceSet.KingPieceType, pieceIndices))
+		return list(filter(lambda cellIndex: isinstance(self.pieceSet.getPieceFromType(self.cellPieceTypes[cellIndex]), chess.chessPieceSet.KingChessPiece), pieceIndices))
 
 	def isKingInCheck(self, teamIndex: int) -> bool:
 		# Get combined list of all the valid move destination cell indices of all pieces on the other team.
@@ -97,3 +98,30 @@ class ChessBoard(Board):
 
 		return (len(allTeamMoveCellIndices) > 0)
 	
+	def getPieceActionsFromMove(self, fromCellIndex: int, toCellIndex: int) -> List:
+		pieceActions = super().getPieceActionsFromMove(fromCellIndex, toCellIndex)
+
+		piece = self.getPieceFromCell(fromCellIndex)
+		if isinstance(piece, chess.chessPieceSet.PawnChessPiece):
+			pawnPiece: chess.chessPieceSet.PawnChessPiece = piece
+			rank = pawnPiece.getRank(self, self.getCellCoordinatesFromIndex(toCellIndex), self.cellPieceTeams[fromCellIndex])
+			if rank == 8:
+				pieceActions += self.getPieceActionsFromPawnPromotion(toCellIndex, pawnPiece, self.cellPieceTeams[fromCellIndex])
+				
+		return pieceActions
+	
+	def getPieceActionsFromPawnPromotion(self, cellIndex: int, pawnPiece: chess.chessPieceSet.PawnChessPiece, teamIndex: int) -> List:
+		return [
+			{
+				"type": BoardPieceActionType.REMOVE_FROM_CELL,
+				"cellIndex": cellIndex,
+				"pieceType": self.pieceSet.getTypeFromPieceClass(type(pawnPiece)),
+				"teamIndex": teamIndex
+			},
+			{
+				"type": BoardPieceActionType.ADD_TO_CELL,
+				"cellIndex": cellIndex,
+				"pieceType": self.pieceSet.getTypeFromPieceClass(chess.chessPieceSet.QueenChessPiece),
+				"teamIndex": teamIndex
+			}
+		]

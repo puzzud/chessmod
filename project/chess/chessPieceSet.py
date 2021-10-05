@@ -200,8 +200,6 @@ class ChessPieceSet(PieceSet):
 			KingChessPiece()
 		]
 
-		self.KingPieceType = len(self.pieces) - 1 # NOTE: Assumes King was added last.
-
 	def getPieceTypeFromCharacter(self, character: str) -> int:
 		upperCharacter = character.upper()
 
