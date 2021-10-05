@@ -5,28 +5,22 @@ from chess.board import Board
 
 class PieceSet():
 	def __init__(self):
-		self.pieces = []
+		self.pieceTypes = []
+		self.pieceTypeCharacters = {}
+
+	def getTypeIdFromPieceType(self, pieceType: Piece) -> int:
+		return self.pieceTypes.index(pieceType)
+
+	def addPieceType(self, pieceType: Piece, character: str) -> None:
+		self.pieceTypes.append(pieceType)
+		self.pieceTypeCharacters[pieceType] = character
+
+	def getCharacterFromPieceType(self, pieceType: Piece) -> str:
+		return self.pieceTypeCharacters[pieceType]
+
+	def createPieceFromCharacter(self, character: str) -> Piece:
+		return Piece()
 	
-	def getPieceFromType(self, pieceType: int) -> Piece:
-		return self.pieces[pieceType]
-
-	def getTypeFromPieceClass(self, pieceClass: Piece) -> int:
-		for pieceIndex in range(len(self.pieces)):
-			currentPiece = self.pieces[pieceIndex]
-			currentPieceType = type(currentPiece)
-			if currentPieceType is pieceClass:
-				return pieceIndex
-		
-		return -1
-
-	def getPiecePropertiesFromCharacter(self, character: str) -> Dict:
-		return {
-			"pieceType": self.getPieceTypeFromCharacter(character),
-			"teamIndex": self.getTeamIndexFromCharacter(character)
-		}
+	def createPieceFromTypeId(self, typeId: int) -> Piece:
+		return Piece()
 	
-	def getPieceTypeFromCharacter(self, character: str) -> int:
-		return -1
-
-	def getTeamIndexFromCharacter(self, character: str) -> int:
-		return 0

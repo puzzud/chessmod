@@ -64,7 +64,6 @@ class ChessGameModel(GameModel):
 		return super().shutdown()
 
 	def activatePiece(self, cellIndex: int) -> None:
-		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
 		self.activatedPieceCellIndex = cellIndex
 		self.turnStateId = ChessTurnStateId.PIECE_ACTIVE
 
@@ -76,7 +75,6 @@ class ChessGameModel(GameModel):
 		self.notify("pieceActivated", payload)
 
 	def deactivatePiece(self, cellIndex: int) -> None:
-		pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
 		self.activatedPieceCellIndex = -1
 		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
 
@@ -121,20 +119,13 @@ class ChessGameModel(GameModel):
 
 		self.notify("gameEnded", winningTeamIndex)
 
-	def areEndOfGameConditionsMet(self) -> bool:
-		if len(self.board.getAllKingIndices()) == 1:
-			return True
-		
-		return False
-
 	def onCellSelected(self, cellIndex: int) -> None:
 		isValidCell = False
 		
 		if self.phaseId == ChessPhaseId.PLAY:
 			if self.turnStateId == ChessTurnStateId.PIECE_NOT_ACTIVE:
-				pieceTypeIndex = self.board.cellPieceTypes[cellIndex]
-				if pieceTypeIndex != -1:
-					teamIndex = self.board.cellPieceTeams[cellIndex]
+				if not self.board.isCellEmpty(cellIndex):
+					teamIndex = self.board.getPieceFromCell(cellIndex).teamIndex
 					if teamIndex == self.currentTurnTeamIndex:
 						isValidCell = True
 						self.activatePiece(cellIndex)

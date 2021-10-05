@@ -8,8 +8,6 @@ class PawnChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 
-		self.character = 'P'
-
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int) -> List:
 		possibleMoves = []
 
@@ -43,8 +41,6 @@ class PawnChessPiece(Piece):
 class RookChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
-
-		self.character = 'R'
 	
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
 		possibleMoves = []
@@ -69,8 +65,6 @@ class RookChessPiece(Piece):
 class KnightChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
-
-		self.character = 'N'
 	
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
 		possibleMoves = []
@@ -104,8 +98,6 @@ class KnightChessPiece(Piece):
 class BishopChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
-
-		self.character = 'B'
 	
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
 		possibleMoves = []
@@ -130,8 +122,6 @@ class BishopChessPiece(Piece):
 class QueenChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
-
-		self.character = 'Q'
 	
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
 		possibleMoves = []
@@ -161,8 +151,6 @@ class KingChessPiece(Piece):
 	def __init__(self):
 		super().__init__()
 
-		self.character = 'K'
-
 	def getPossibleMoves(self, board: Board, cellIndex: int, teamIndex: int):
 		possibleMoves = []
 
@@ -191,24 +179,32 @@ class ChessPieceSet(PieceSet):
 	def __init__(self):
 		super().__init__()
 
-		self.pieces = [
-			PawnChessPiece(),
-			RookChessPiece(),
-			KnightChessPiece(),
-			BishopChessPiece(),
-			QueenChessPiece(),
-			KingChessPiece()
-		]
+		self.addPieceType(PawnChessPiece, 'P')
+		self.addPieceType(RookChessPiece, 'R')
+		self.addPieceType(KnightChessPiece, 'N')
+		self.addPieceType(BishopChessPiece, 'B')
+		self.addPieceType(QueenChessPiece, 'Q')
+		self.addPieceType(KingChessPiece, 'K')
 
-	def getPieceTypeFromCharacter(self, character: str) -> int:
+	def createPieceFromCharacter(self, character: str) -> int:
 		upperCharacter = character.upper()
-
-		for pieceIndex in range(len(self.pieces)):
-			piece = self.pieces[pieceIndex]
-			if piece.character == upperCharacter:
-				return pieceIndex
 		
-		return -1
+		for pieceType in self.pieceTypes:
+			pieceCharacter = self.getCharacterFromPieceType(pieceType)
+			if pieceCharacter == upperCharacter:
+				piece = pieceType()
+				piece.teamIndex = self.getTeamIndexFromCharacter(character)
+				return piece
+		return None
+
+	def createPieceFromTypeId(self, typeId: int) -> Piece:
+		if typeId < 0:
+			return None
+		
+		if typeId >= len(self.pieceTypes):
+			return None
+
+		return self.pieceTypes[typeId]()
 
 	def getTeamIndexFromCharacter(self, character: str) -> int:
 		if character.lower() == character:

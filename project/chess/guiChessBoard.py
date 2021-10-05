@@ -73,9 +73,9 @@ class GuiChessBoard(GuiNode):
 			teamPieceIconSurfaces = []
 
 			pieceColor = self.pieceColors[teamIndex]
-			for pieceIndex in range(len(self.board.pieceSet.pieces)):
-				piece = self.board.pieceSet.pieces[pieceIndex]
-				pieceIconSurface = font.render(piece.character, True, self.pieceColors[teamIndex])
+			for pieceType in self.board.pieceSet.pieceTypes:
+				pieceCharacter = self.board.pieceSet.getCharacterFromPieceType(pieceType)
+				pieceIconSurface = font.render(pieceCharacter, True, self.pieceColors[teamIndex])
 				teamPieceIconSurfaces.append(pieceIconSurface)
 			
 			pieceIconSurfaces.append(teamPieceIconSurfaces)
@@ -141,9 +141,10 @@ class GuiChessBoard(GuiNode):
 			for x in range(0, board.cellWidth):
 				cellIndex = board.getCellIndexFromCoordinates([x, y])
 
-				cellPieceType = board.cellPieceTypes[cellIndex]
-				if cellPieceType is not -1:
-					self.drawPiece(self.surface, x, y, cellPieceType, board.cellPieceTeams[cellIndex])
+				if not board.isCellEmpty(cellIndex):
+					cellPieceType = board.pieceSet.getTypeIdFromPieceType(type(board.getPieceFromCell(cellIndex)))
+					teamIndex = board.getPieceFromCell(cellIndex).teamIndex
+					self.drawPiece(self.surface, x, y, cellPieceType, teamIndex)
 
 	def drawPiece(self, screen: pygame.Surface, cellX: int, cellY: int, pieceType: int, teamIndex: int) -> None:
 		pieceIconSurface = self.pieceIconSurfaces[teamIndex][pieceType]

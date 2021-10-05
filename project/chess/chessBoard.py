@@ -14,36 +14,36 @@ class ChessBoard(Board):
 	def __init__(self):
 		super().__init__(8, 8, chess.chessPieceSet.ChessPieceSet())
 
-	def getAllPieces(self) -> List:
+	def getAllPieceIndices(self) -> List:
 		allPieceCellIndices = []
 
 		for cellIndex in range(self.getNumberOfCells()):
-			if self.cellPieceTypes[cellIndex] != -1:
+			if not self.isCellEmpty(cellIndex):
 				allPieceCellIndices.append(cellIndex)
 
 		return allPieceCellIndices
 
-	def getAllTeamPieces(self, teamIndex: int) -> List:
-		return list(filter(lambda cellIndex: self.cellPieceTeams[cellIndex] == teamIndex, self.getAllPieces()))
+	def getAllTeamPieceIndices(self, teamIndex: int) -> List:
+		return list(filter(lambda cellIndex: self.getPieceFromCell(cellIndex).teamIndex == teamIndex, self.getAllPieceIndices()))
 
-	def getAllOpponentTeamPieces(self, teamIndex: int) -> List:
-		return list(filter(lambda cellIndex: self.cellPieceTeams[cellIndex] != teamIndex, self.getAllPieces()))
+	def getAllOpponentTeamPieceIndices(self, teamIndex: int) -> List:
+		return list(filter(lambda cellIndex: self.getPieceFromCell(cellIndex).teamIndex != teamIndex, self.getAllPieceIndices()))
 
 	def getAllKingIndices(self, teamIndex: int = -1) -> List:
 		pieceIndices = []
 
 		if teamIndex > -1:
-			pieceIndices = self.getAllTeamPieces(teamIndex)
+			pieceIndices = self.getAllTeamPieceIndices(teamIndex)
 		else:
-			pieceIndices = self.getAllPieces()
+			pieceIndices = self.getAllPieceIndices()
 
-		return list(filter(lambda cellIndex: isinstance(self.pieceSet.getPieceFromType(self.cellPieceTypes[cellIndex]), chess.chessPieceSet.KingChessPiece), pieceIndices))
+		return list(filter(lambda cellIndex: isinstance(self.getPieceFromCell(cellIndex), chess.chessPieceSet.KingChessPiece), pieceIndices))
 
 	def isKingInCheck(self, teamIndex: int) -> bool:
 		# Get combined list of all the valid move destination cell indices of all pieces on the other team.
 		allOpponentMoveCellIndices = []
 
-		for opponentTeamPieceIndex in self.getAllOpponentTeamPieces(teamIndex):
+		for opponentTeamPieceIndex in self.getAllOpponentTeamPieceIndices(teamIndex):
 			allOpponentMoveCellIndices += super().getValidMoveCellIndices(opponentTeamPieceIndex)
 
 		allOpponentMoveCellIndices = set(allOpponentMoveCellIndices)
@@ -74,7 +74,7 @@ class ChessBoard(Board):
 
 	def getValidMoveCellIndices(self, fromCellIndex: int) -> List:
 		validMoveCellIndices = super().getValidMoveCellIndices(fromCellIndex)
-		teamIndex = self.cellPieceTeams[fromCellIndex]
+		teamIndex = self.getPieceFromCell(fromCellIndex).teamIndex
 
 		return list(filter(lambda toCellIndex: not self.doesMovePutTeamKingIntoCheck(fromCellIndex, toCellIndex, teamIndex), validMoveCellIndices))
 
@@ -93,7 +93,7 @@ class ChessBoard(Board):
 	def areThereValidMoves(self, teamIndex: int) -> bool:
 		allTeamMoveCellIndices = []
 
-		for allTeamMoveCellIndex in self.getAllTeamPieces(teamIndex):
+		for allTeamMoveCellIndex in self.getAllTeamPieceIndices(teamIndex):
 			allTeamMoveCellIndices += self.getValidMoveCellIndices(allTeamMoveCellIndex)
 
 		return (len(allTeamMoveCellIndices) > 0)
@@ -104,9 +104,10 @@ class ChessBoard(Board):
 		piece = self.getPieceFromCell(fromCellIndex)
 		if isinstance(piece, chess.chessPieceSet.PawnChessPiece):
 			pawnPiece: chess.chessPieceSet.PawnChessPiece = piece
-			rank = pawnPiece.getRank(self, self.getCellCoordinatesFromIndex(toCellIndex), self.cellPieceTeams[fromCellIndex])
+			teamIndex = self.getPieceFromCell(fromCellIndex).teamIndex
+			rank = pawnPiece.getRank(self, self.getCellCoordinatesFromIndex(toCellIndex), teamIndex)
 			if rank == 8:
-				pieceActions += self.getPieceActionsFromPawnPromotion(toCellIndex, pawnPiece, self.cellPieceTeams[fromCellIndex])
+				pieceActions += self.getPieceActionsFromPawnPromotion(toCellIndex, pawnPiece, teamIndex)
 				
 		return pieceActions
 	
@@ -115,13 +116,13 @@ class ChessBoard(Board):
 			{
 				"type": BoardPieceActionType.REMOVE_FROM_CELL,
 				"cellIndex": cellIndex,
-				"pieceType": self.pieceSet.getTypeFromPieceClass(type(pawnPiece)),
+				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(type(pawnPiece)),
 				"teamIndex": teamIndex
 			},
 			{
 				"type": BoardPieceActionType.ADD_TO_CELL,
 				"cellIndex": cellIndex,
-				"pieceType": self.pieceSet.getTypeFromPieceClass(chess.chessPieceSet.QueenChessPiece),
+				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(chess.chessPieceSet.QueenChessPiece),
 				"teamIndex": teamIndex
 			}
 		]
