@@ -1,6 +1,7 @@
 from typing import Dict, List
 from enum import Enum
 
+import chess.piece
 import chess.pieceSet
 
 class BoardPieceActionType(Enum):
@@ -9,14 +10,14 @@ class BoardPieceActionType(Enum):
 	MOVE_TO_CELL = 2
 
 class Board:
-	def __init__(self, cellWidth: int, cellHeight: int, _pieceSet):
+	def __init__(self, cellWidth: int, cellHeight: int, pieceSet):
 		self.cellWidth = cellWidth
 		self.cellHeight = cellHeight
 
 		numberOfCells = self.getNumberOfCells()
 		self.cellContents = [[]] * numberOfCells
 
-		self.pieceSet = _pieceSet
+		self.pieceSet: chess.pieceSet.PieceSet = pieceSet
 
 	def getNumberOfCells(self) -> int:
 		return self.cellWidth * self.cellHeight
@@ -51,23 +52,26 @@ class Board:
 	def setCellContents(self, cellIndex: int, cellContents: List) -> None:
 		self.cellContents[cellIndex] = cellContents
 
+	def clearCellContents(self, cellIndex: int) -> None:
+		self.cellContents[cellIndex].clear()
+
 	#def addPieceToCell(self, cellIndex: int, piece) -> None:
 	#	self.cellContents[cellIndex].append(piece)
 
+	# NOTE: This method assumes only one piece can be in cell.
 	def getPieceFromCell(self, cellIndex: int):
 		if self.isCellEmpty(cellIndex):
 			return None
 		
-		# TODO: This method assumes only one piece can be in cell.
-		cellContents: List = self.cellContents[cellIndex]
-		return cellContents[0]
+		piece: chess.piece.Piece = self.getCellContents(cellIndex)[0]
+		return piece
 
 	def isCellEmpty(self, cellIndex: int) -> bool:
-		return len(self.cellContents[cellIndex]) == 0
+		return len(self.getCellContents(cellIndex)) == 0
 
 	def doesCellHaveOpponentPiece(self, cellIndex: int, teamIndex: int) -> bool:
 		if not self.isCellEmpty(cellIndex):
-			for piece in self.cellContents[cellIndex]:
+			for piece in self.getCellContents(cellIndex):
 				if piece.teamIndex != teamIndex:
 					return True
 		
@@ -85,7 +89,7 @@ class Board:
 			x = 0
 			for character in stringRow:
 				cellIndex = self.getCellIndexFromCoordinates([x, y])
-				self.cellContents[cellIndex] = self.createCellContentsFromCharacter(character)
+				self.setCellContents(cellIndex, self.createCellContentsFromCharacter(character))
 				x += 1
 			y += 1
 	
@@ -143,19 +147,19 @@ class Board:
 				if pieceTypeId > -1:
 					piece = self.pieceSet.createPieceFromTypeId(pieceTypeId)
 					piece.teamIndex = pieceAction["teamIndex"]
-					self.cellContents[cellIndex] = [piece]
+					self.setCellContents(cellIndex, [piece])
 			elif pieceActionType == BoardPieceActionType.REMOVE_FROM_CELL:
 				cellIndex: int = pieceAction["cellIndex"]
-				self.cellContents[cellIndex] = []
+				self.clearCellContents(cellIndex)
 			elif pieceActionType == BoardPieceActionType.MOVE_TO_CELL:
 				fromCellIndex: int = pieceAction["fromCellIndex"]
 				toCellIndex: int = pieceAction["toCellIndex"]
-				self.cellContents[fromCellIndex] = []
+				self.clearCellContents(fromCellIndex)
 				pieceTypeId = pieceAction["pieceTypeId"]
 				if pieceTypeId > -1:
 					piece = self.pieceSet.createPieceFromTypeId(pieceTypeId)
 					piece.teamIndex = pieceAction["teamIndex"]
-					self.cellContents[toCellIndex] = [piece]
+					self.setCellContents(toCellIndex, [piece])
 			else:
 				print("Board::executePieceActions - Encountered unhandled BoardPieceActionType: " + str(pieceActionType))
 		
