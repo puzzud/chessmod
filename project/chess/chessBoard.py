@@ -105,14 +105,13 @@ class ChessBoard(Board):
 		piece = self.getPieceFromCell(fromCellIndex)
 		if isinstance(piece, chess.chessPiece.PawnChessPiece):
 			pawnPiece: chess.chessPiece.PawnChessPiece = piece
-			teamIndex = pawnPiece.teamIndex
-			rank = pawnPiece.getRank(self, self.getCellCoordinatesFromIndex(toCellIndex), teamIndex)
+			rank = pawnPiece.getRank(self, self.getCellCoordinatesFromIndex(toCellIndex))
 			if rank == 8:
-				pieceActions += self.getPieceActionsFromPawnPromotion(toCellIndex, pawnPiece, teamIndex)
+				pieceActions += self.getPieceActionsFromPawnPromotion(toCellIndex, pawnPiece)
 				
 		return pieceActions
 	
-	def getPieceActionsFromPawnPromotion(self, cellIndex: int, piece: chess.piece.Piece, teamIndex: int) -> List[dict]:
+	def getPieceActionsFromPawnPromotion(self, cellIndex: int, piece: chess.piece.Piece) -> List[dict]:
 		pawnPiece: chess.chessPiece.PawnChessPiece = piece
 		
 		return [
@@ -120,12 +119,12 @@ class ChessBoard(Board):
 				"type": BoardPieceActionType.REMOVE_FROM_CELL,
 				"cellIndex": cellIndex,
 				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(type(pawnPiece)),
-				"teamIndex": teamIndex
+				"teamIndex": pawnPiece.teamIndex
 			},
 			{
 				"type": BoardPieceActionType.ADD_TO_CELL,
 				"cellIndex": cellIndex,
 				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(chess.chessPiece.QueenChessPiece),
-				"teamIndex": teamIndex
+				"teamIndex": pawnPiece.teamIndex
 			}
 		]

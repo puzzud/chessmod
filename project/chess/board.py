@@ -120,8 +120,7 @@ class Board:
 
 	def getValidMoveCellIndices(self, cellIndex: int) -> List[int]:
 		piece = self.getPieceFromCell(cellIndex)
-		teamIndex = piece.teamIndex
-		return piece.getPossibleMoves(self, cellIndex, teamIndex)
+		return piece.getPossibleMoves(self, cellIndex)
 
 	def isValidMoveDestination(self, sourceCellIndex: int, toCellIndex: int) -> bool:
 		return toCellIndex in self.getValidMoveCellIndices(sourceCellIndex)
