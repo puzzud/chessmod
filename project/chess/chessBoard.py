@@ -112,19 +112,19 @@ class ChessBoard(Board):
 		return pieceActions
 	
 	def getPieceActionsFromPawnPromotion(self, cellIndex: int, piece: chess.piece.Piece) -> List[dict]:
-		pawnPiece: chess.chessPiece.PawnChessPiece = piece
-		
-		return [
-			{
+		removeFromCellAction = {
 				"type": BoardPieceActionType.REMOVE_FROM_CELL,
 				"cellIndex": cellIndex,
-				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(type(pawnPiece)),
-				"teamIndex": pawnPiece.teamIndex
-			},
-			{
+				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(type(piece))
+			}
+
+		removeFromCellAction = {**removeFromCellAction, **piece.getAttributesAsDict()}
+
+		addToCellAction = {
 				"type": BoardPieceActionType.ADD_TO_CELL,
 				"cellIndex": cellIndex,
 				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(chess.chessPiece.QueenChessPiece),
-				"teamIndex": pawnPiece.teamIndex
+				"teamIndex": piece.teamIndex
 			}
-		]
+
+		return [removeFromCellAction, addToCellAction]

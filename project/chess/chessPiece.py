@@ -3,7 +3,18 @@ from typing import Dict, List
 from chess.piece import Piece
 import chess.chessBoard
 
-class PawnChessPiece(Piece):
+class ChessPiece(Piece):
+	def __init__(self, teamIndex: int = -1):
+		super().__init__(teamIndex)
+
+		self.hasMoved = False
+	
+	def __copy__(self):
+		chessPieceCopy = ChessPiece(self.teamIndex)
+		chessPieceCopy.hasMoved = self.hasMoved
+		return chessPieceCopy
+
+class PawnChessPiece(ChessPiece):
 	def __init__(self):
 		super().__init__()
 
@@ -39,7 +50,7 @@ class PawnChessPiece(Piece):
 		board: chess.chessBoard.ChessBoard = _board
 		return board.cellHeight - cellCoordinates[1] if self.teamIndex == 0 else cellCoordinates[1] + 1
 
-class RookChessPiece(Piece):
+class RookChessPiece(ChessPiece):
 	def __init__(self):
 		super().__init__()
 	
@@ -64,7 +75,7 @@ class RookChessPiece(Piece):
 
 		return possibleMoves
 
-class KnightChessPiece(Piece):
+class KnightChessPiece(ChessPiece):
 	def __init__(self):
 		super().__init__()
 	
@@ -98,7 +109,7 @@ class KnightChessPiece(Piece):
 
 		return possibleMoves
 
-class BishopChessPiece(Piece):
+class BishopChessPiece(ChessPiece):
 	def __init__(self):
 		super().__init__()
 	
@@ -123,7 +134,7 @@ class BishopChessPiece(Piece):
 
 		return possibleMoves
 
-class QueenChessPiece(Piece):
+class QueenChessPiece(ChessPiece):
 	def __init__(self):
 		super().__init__()
 	
@@ -152,7 +163,7 @@ class QueenChessPiece(Piece):
 
 		return possibleMoves
 
-class KingChessPiece(Piece):
+class KingChessPiece(ChessPiece):
 	def __init__(self):
 		super().__init__()
 
