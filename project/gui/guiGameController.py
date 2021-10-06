@@ -11,7 +11,7 @@ class GuiGameController(GameController):
 	def __init__(self, gameModel: GameModel, guiGameView: GuiGameView):
 		super().__init__(gameModel)
 
-		self.eventHandlers = {
+		self.eventHandlers: dict[str, function] = {
 			pygame.QUIT: self.onQuitEvent,
 			pygame.KEYDOWN: self.onKeyEvent,
 			pygame.KEYUP: self.onKeyEvent,

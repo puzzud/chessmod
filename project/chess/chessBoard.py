@@ -14,8 +14,8 @@ class ChessBoard(Board):
 	def __init__(self):
 		super().__init__(8, 8, chess.chessPieceSet.ChessPieceSet())
 
-	def getAllPieceIndices(self) -> List:
-		allPieceCellIndices = []
+	def getAllPieceIndices(self) -> List[int]:
+		allPieceCellIndices: list[int] = []
 
 		for cellIndex in range(self.getNumberOfCells()):
 			if not self.isCellEmpty(cellIndex):
@@ -23,14 +23,14 @@ class ChessBoard(Board):
 
 		return allPieceCellIndices
 
-	def getAllTeamPieceIndices(self, teamIndex: int) -> List:
+	def getAllTeamPieceIndices(self, teamIndex: int) -> List[int]:
 		return list(filter(lambda cellIndex: self.getPieceFromCell(cellIndex).teamIndex == teamIndex, self.getAllPieceIndices()))
 
-	def getAllOpponentTeamPieceIndices(self, teamIndex: int) -> List:
+	def getAllOpponentTeamPieceIndices(self, teamIndex: int) -> List[int]:
 		return list(filter(lambda cellIndex: self.getPieceFromCell(cellIndex).teamIndex != teamIndex, self.getAllPieceIndices()))
 
-	def getAllKingIndices(self, teamIndex: int = -1) -> List:
-		pieceIndices = []
+	def getAllKingIndices(self, teamIndex: int = -1) -> List[int]:
+		pieceIndices: list[int] = []
 
 		if teamIndex > -1:
 			pieceIndices = self.getAllTeamPieceIndices(teamIndex)
@@ -41,7 +41,7 @@ class ChessBoard(Board):
 
 	def isKingInCheck(self, teamIndex: int) -> bool:
 		# Get combined list of all the valid move destination cell indices of all pieces on the other team.
-		allOpponentMoveCellIndices = []
+		allOpponentMoveCellIndices: list[int] = []
 
 		for opponentTeamPieceIndex in self.getAllOpponentTeamPieceIndices(teamIndex):
 			allOpponentMoveCellIndices += super().getValidMoveCellIndices(opponentTeamPieceIndex)
@@ -72,7 +72,7 @@ class ChessBoard(Board):
 		else:
 			return ChessEndGameCondition.NONE
 
-	def getValidMoveCellIndices(self, fromCellIndex: int) -> List:
+	def getValidMoveCellIndices(self, fromCellIndex: int) -> List[int]:
 		validMoveCellIndices = super().getValidMoveCellIndices(fromCellIndex)
 		teamIndex = self.getPieceFromCell(fromCellIndex).teamIndex
 
@@ -91,14 +91,14 @@ class ChessBoard(Board):
 		return putsTeamKingIntoCheck
 	
 	def areThereValidMoves(self, teamIndex: int) -> bool:
-		allTeamMoveCellIndices = []
+		allTeamMoveCellIndices: list[int] = []
 
 		for allTeamMoveCellIndex in self.getAllTeamPieceIndices(teamIndex):
 			allTeamMoveCellIndices += self.getValidMoveCellIndices(allTeamMoveCellIndex)
 
 		return (len(allTeamMoveCellIndices) > 0)
 	
-	def getPieceActionsFromMove(self, fromCellIndex: int, toCellIndex: int) -> List:
+	def getPieceActionsFromMove(self, fromCellIndex: int, toCellIndex: int) -> List[dict]:
 		pieceActions = super().getPieceActionsFromMove(fromCellIndex, toCellIndex)
 
 		piece = self.getPieceFromCell(fromCellIndex)
@@ -111,7 +111,7 @@ class ChessBoard(Board):
 				
 		return pieceActions
 	
-	def getPieceActionsFromPawnPromotion(self, cellIndex: int, pawnPiece: chess.chessPieceSet.PawnChessPiece, teamIndex: int) -> List:
+	def getPieceActionsFromPawnPromotion(self, cellIndex: int, pawnPiece: chess.chessPieceSet.PawnChessPiece, teamIndex: int) -> List[dict]:
 		return [
 			{
 				"type": BoardPieceActionType.REMOVE_FROM_CELL,

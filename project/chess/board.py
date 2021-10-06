@@ -15,20 +15,20 @@ class Board:
 		self.cellHeight = cellHeight
 
 		numberOfCells = self.getNumberOfCells()
-		self.cellContents = [[]] * numberOfCells
+		self.cellContents: list[list[chess.piece.Piece]] = [[]] * numberOfCells
 
 		self.pieceSet: chess.pieceSet.PieceSet = pieceSet
 
 	def getNumberOfCells(self) -> int:
 		return self.cellWidth * self.cellHeight
 
-	def getCellCoordinatesFromIndex(self, cellIndex: int) -> List:
+	def getCellCoordinatesFromIndex(self, cellIndex: int) -> List[int]:
 		return [
 			int(cellIndex % self.cellWidth),
 			int(cellIndex / self.cellHeight)
 		]
 
-	def getCellIndexFromCoordinates(self, cellCoordinates: List) -> int:
+	def getCellIndexFromCoordinates(self, cellCoordinates: List[int]) -> int:
 		if cellCoordinates[0] >= self.cellWidth:
 			return -1
 
@@ -37,7 +37,7 @@ class Board:
 
 		return (cellCoordinates[1] * self.cellWidth) + cellCoordinates[0]
 
-	def areCellCoordinatesOnBoard(self, cellCoordinates: List) -> bool:
+	def areCellCoordinatesOnBoard(self, cellCoordinates: List[int]) -> bool:
 		if (cellCoordinates[0] < 0) or (cellCoordinates[0] >= self.cellWidth):
 			return False
 		
@@ -46,7 +46,7 @@ class Board:
 		
 		return True
 
-	def getCellContents(self, cellIndex: int) -> List:
+	def getCellContents(self, cellIndex: int):
 		return self.cellContents[cellIndex]
 	
 	def setCellContents(self, cellIndex: int, cellContents: List) -> None:
@@ -71,19 +71,23 @@ class Board:
 
 	def doesCellHaveOpponentPiece(self, cellIndex: int, teamIndex: int) -> bool:
 		if not self.isCellEmpty(cellIndex):
-			for piece in self.getCellContents(cellIndex):
+			for _piece in self.getCellContents(cellIndex):
+				piece: chess.piece.Piece = _piece
 				if piece.teamIndex != teamIndex:
 					return True
 		
 		return False
 
-	def createCellContentsFromCharacter(self, character: str) -> List:
-		if character is '.':
-			return []
+	def createCellContentsFromCharacter(self, character: str):
+		cellContents: list[chess.piece.Piece] = []
 		
-		return [self.pieceSet.createPieceFromCharacter(character)]
+		if character is '.':
+			return cellContents
+		
+		cellContents.append(self.pieceSet.createPieceFromCharacter(character))
+		return cellContents
 
-	def loadFromStringRowList(self, stringRowList: List) -> None:
+	def loadFromStringRowList(self, stringRowList: List[str]) -> None:
 		y = 0
 		for stringRow in stringRowList:
 			x = 0
@@ -93,8 +97,8 @@ class Board:
 				x += 1
 			y += 1
 	
-	def getCellsFromRay(self, sourceCellCoordinates: List, direction: List, distance: int) -> List:
-		cellIndices = []
+	def getCellsFromRay(self, sourceCellCoordinates: List[int], direction: List[int], distance: int) -> List[int]:
+		cellIndices: list[int] = []
 		
 		cellCoordinates = sourceCellCoordinates.copy()
 
@@ -114,7 +118,7 @@ class Board:
 		
 		return cellIndices
 
-	def getValidMoveCellIndices(self, cellIndex: int) -> List:
+	def getValidMoveCellIndices(self, cellIndex: int) -> List[int]:
 		piece = self.getPieceFromCell(cellIndex)
 		teamIndex = piece.teamIndex
 		return piece.getPossibleMoves(self, cellIndex, teamIndex)
@@ -122,7 +126,7 @@ class Board:
 	def isValidMoveDestination(self, sourceCellIndex: int, toCellIndex: int) -> bool:
 		return toCellIndex in self.getValidMoveCellIndices(sourceCellIndex)
 
-	def reversePieceActions(self, pieceActions: List) -> List:
+	def reversePieceActions(self, pieceActions: List[dict]) -> List[dict]:
 		pieceActions.reverse()
 		for pieceAction in pieceActions:
 			pieceActionType: int = pieceAction["type"]
@@ -138,7 +142,7 @@ class Board:
 
 		return pieceActions
 
-	def executePieceActions(self, pieceActions: List) -> int:
+	def executePieceActions(self, pieceActions: List[dict]) -> int:
 		for pieceAction in pieceActions:
 			pieceActionType: int = pieceAction["type"]
 			if pieceActionType == BoardPieceActionType.ADD_TO_CELL:
@@ -165,7 +169,7 @@ class Board:
 		
 		return 0
 
-	def getPieceActionsFromMove(self, fromCellIndex: int, toCellIndex: int) -> List:
+	def getPieceActionsFromMove(self, fromCellIndex: int, toCellIndex: int) -> List[dict]:
 		fromPiece = self.getPieceFromCell(fromCellIndex)
 		toPiece = self.getPieceFromCell(toCellIndex)
 
@@ -185,7 +189,7 @@ class Board:
 			}
 		]
 
-	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> List:
+	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> List[dict]:
 		pieceActions = self.getPieceActionsFromMove(fromCellIndex, toCellIndex)
 	
 		self.executePieceActions(pieceActions)

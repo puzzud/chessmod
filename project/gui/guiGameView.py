@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import pygame
 from pygame.locals import *
@@ -17,7 +17,7 @@ class GuiGameView(GameView):
 	def __init__(self, chessGameModel: ChessGameModel):
 		super().__init__(chessGameModel)
 
-		self.signalHandlers = {
+		self.signalHandlers: dict[str, function] = {
 			"gameInitialized": self.onGameInitialized,
 			"pointerDown": self.onPointerDown,
 			"turnStarted": self.onTurnStarted,
@@ -50,7 +50,7 @@ class GuiGameView(GameView):
 		pygame.quit()
 		super().__del__()
 
-	def getCellIndexFromPoint(self, position: List) -> int:
+	def getCellIndexFromPoint(self, position: List[int]) -> int:
 		cellCoordinates = self.guiChessBoard.getCellCoordinatesFromPoint(position)
 		return self.guiChessBoard.board.getCellIndexFromCoordinates(cellCoordinates)
 	
@@ -62,7 +62,7 @@ class GuiGameView(GameView):
 
 		pygame.display.update()
 
-	def onGameInitialized(self, payload: Dict) -> None:
+	def onGameInitialized(self, payload: Dict[str, Any]) -> None:
 		board = ChessBoard()
 		board.loadFromStringRowList(payload["boardStringRowList"])
 		self.guiChessBoard = GuiChessBoard([0, 0], board)
@@ -71,7 +71,7 @@ class GuiGameView(GameView):
 
 		self.draw()
 
-	def onPointerDown(self, position: List) -> None:
+	def onPointerDown(self, position: List[int]) -> None:
 		cellIndex = self.getCellIndexFromPoint(position)
 		if cellIndex > -1:
 			self.notify("cellSelected", cellIndex)
@@ -87,7 +87,7 @@ class GuiGameView(GameView):
 
 		self.draw()
 	
-	def onPieceActivated(self, payload: Dict) -> None:
+	def onPieceActivated(self, payload: Dict[str, Any]) -> None:
 		self.guiChessBoard.setHighlightedCells(payload["activatedCellIndex"], payload["validCellIndices"])
 
 		self.draw()
@@ -97,7 +97,7 @@ class GuiGameView(GameView):
 
 		self.draw()
 	
-	def onPieceMoved(self, payload: List) -> None:
+	def onPieceMoved(self, payload: List[int]) -> None:
 		self.guiChessBoard.board.movePiece(payload[0], payload[1])
 
 		self.draw()

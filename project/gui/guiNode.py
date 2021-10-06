@@ -5,16 +5,16 @@ from pygame import surface
 from pygame.locals import *
 
 class GuiNode():
-	def __init__(self, position: List) -> None:
+	def __init__(self, position: List[int]) -> None:
 		self.position = position.copy()
-		self.children = []
+		self.children: list[GuiNode] = []
 
 		self.surface: pygame.Surface = None
 
-	def setPosition(self, position: List) -> None:
+	def setPosition(self, position: List[int]) -> None:
 		self.position = position.copy()
 
-	def getDimensions(self) -> List:
+	def getDimensions(self) -> List[int]:
 		if self.surface is None:
 			return [0, 0]
 		

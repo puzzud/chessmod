@@ -7,7 +7,7 @@ class GameController(Observer):
 	def __init__(self, gameModel: GameModel):
 		super().__init__()
 
-		self.signalHandlers = {
+		self.signalHandlers: dict[str, function] = {
 			"gameEnded": self.onGameEnded
 		}
 

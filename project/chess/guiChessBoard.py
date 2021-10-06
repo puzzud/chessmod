@@ -17,12 +17,12 @@ class GuiChessBoard(GuiNode):
 		self.cellPixelWidth = 64
 		self.cellPixelHeight = 64
 
-		self.cellColors = [
+		self.cellColors: list[tuple] = [
 			(192, 192, 192),
 			(128, 128, 128)
 		]
 
-		self.pieceColors = [
+		self.pieceColors: list[tuple] = [
 			(255, 255, 255),
 			(0, 0, 0)
 		]
@@ -41,13 +41,13 @@ class GuiChessBoard(GuiNode):
 		self.render()
 
 	# TODO: Will want to transform from global (parent) space eventually when board is moved out of top left corner.
-	def getCellCoordinatesFromPoint(self, position: List) -> List:
+	def getCellCoordinatesFromPoint(self, position: List[int]) -> List[int]:
 		return [
 			int(position[0] / self.cellPixelWidth),
 			int(position[1] / self.cellPixelHeight)
 		]
 
-	def setHighlightedCells(self, activeCellIndex: int, validCellIndices: List) -> None:
+	def setHighlightedCells(self, activeCellIndex: int, validCellIndices: List[int]) -> None:
 		self.boardOverlayCellStates[activeCellIndex] = 1
 		
 		for validCellIndex in validCellIndices:
@@ -66,11 +66,11 @@ class GuiChessBoard(GuiNode):
 		self.drawBoard(self.board)
 		self.drawPieces(self.board)
 	
-	def renderPieceIconSurfaces(self, font: pygame.font) -> List:
+	def renderPieceIconSurfaces(self, font: pygame.font) -> List[List[pygame.Surface]]:
 		pieceIconSurfaces = []
 
 		for teamIndex in range(2):
-			teamPieceIconSurfaces = []
+			teamPieceIconSurfaces: list[pygame.Surface] = []
 
 			pieceColor = self.pieceColors[teamIndex]
 			for pieceType in self.board.pieceSet.pieceTypes:

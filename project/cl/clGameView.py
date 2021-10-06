@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from engine.gameView import GameView
 from chess.chessGameModel import ChessGameModel
@@ -10,7 +10,7 @@ class ClGameView(GameView):
 	def __init__(self, chessGameModel: ChessGameModel):
 		super().__init__(chessGameModel)
 
-		self.signalHandlers = {
+		self.signalHandlers: dict[str, function] = {
 			"gameInitialized": self.onGameInitialized,
 			"gameEnded": self.onGameEnded,
 			"turnStarted": self.onTurnStarted,
@@ -33,7 +33,7 @@ class ClGameView(GameView):
 		chessGameModel.attach(self, "pieceMoved")
 	
 		self.board: ChessBoard = None
-		self.teamNames = []
+		self.teamNames: list[str] = []
 
 	def __del__(self):
 		super().__del__()
@@ -46,7 +46,7 @@ class ClGameView(GameView):
 			for x in range(0, board.cellWidth):
 				cellIndex = board.getCellIndexFromCoordinates([x, y])
 
-	def onGameInitialized(self, payload: Dict) -> None:
+	def onGameInitialized(self, payload: Dict[str, Any]) -> None:
 		self.board = ChessBoard()
 		self.board.loadFromStringRowList(payload["boardStringRowList"])
 
@@ -66,7 +66,7 @@ class ClGameView(GameView):
 	def onTurnEnded(self, payload: None) -> None:
 		pass
 
-	def onPieceActivated(self, payload: Dict) -> None:
+	def onPieceActivated(self, payload: Dict[str, Any]) -> None:
 		#piece = self.chessGameModel.board.getPiece(cellIndex)
 		#print("Activated Piece")
 		pass
@@ -78,7 +78,7 @@ class ClGameView(GameView):
 	def onInvalidCellSelected(self, cellIndex: int) -> None:
 		print("Invalid Selection: " + str(cellIndex))
 
-	def onPieceMoved(self, payload: List) -> None:
+	def onPieceMoved(self, payload: List[int]) -> None:
 		#print("Moved Piece")
 		pass
 	

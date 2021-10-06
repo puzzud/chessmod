@@ -35,7 +35,7 @@ class PawnChessPiece(Piece):
 
 		return possibleMoves
 	
-	def getRank(self, board: Board, cellCoordinates: List, teamIndex: int) -> int:
+	def getRank(self, board: Board, cellCoordinates: List[int], teamIndex: int) -> int:
 		return board.cellHeight - cellCoordinates[1] if teamIndex == 0 else cellCoordinates[1] + 1
 
 class RookChessPiece(Piece):

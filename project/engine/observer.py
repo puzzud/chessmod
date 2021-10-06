@@ -1,11 +1,11 @@
 class Observer():
 	def __init__(self):
 		self.name = __name__
-		self.signalObservers = {}
-		self.signalHandlers = {}
+		self.signalObservers: dict[str, Observer] = {}
+		self.signalHandlers: dict[str, function] = {}
 
 	def attach(self, observer, signalId: str) -> None:
-		observers = self.signalObservers.get(signalId, [])
+		observers: list[Observer] = self.signalObservers.get(signalId, [])
 		if len(observers) == 0:
 			self.signalObservers[signalId] = observers
 		
@@ -13,14 +13,14 @@ class Observer():
 			observers.append(observer)
 
 	def detach(self, observer, signalId: str) -> int:
-		observers = self.signalObservers.get(signalId, None)
+		observers: list[Observer] = self.signalObservers.get(signalId, None)
 		if observers == None or observer not in observers:
 			return -1
 		
 		observers.remove(observer)
 
 	def notify(self, signalId: str, payload = None) -> None:
-		observers = self.signalObservers.get(signalId, None)
+		observers: list[Observer] = self.signalObservers.get(signalId, None)
 		if observers == None:
 			return
 		
@@ -28,9 +28,7 @@ class Observer():
 			observer.notified(signalId, payload)
 	
 	def notified(self, signalId: int, payload = None) -> None:
-		#$print(self.name + " notified of signal \"" + signalId + "\"")
-
-		signalHandler = self.signalHandlers.get(signalId, None)
+		signalHandler: function = self.signalHandlers.get(signalId, None)
 		if signalHandler is not None:
 			signalHandler(payload)
 	
