@@ -1,8 +1,8 @@
 from typing import Dict, List
 from enum import Enum
 
-import chess.piece
-import chess.pieceSet
+from chess.piece import Piece
+from chess.pieceSet import PieceSet
 
 class BoardPieceActionType(Enum):
 	REMOVE_FROM_CELL = 0,
@@ -15,9 +15,9 @@ class Board:
 		self.cellHeight = cellHeight
 
 		numberOfCells = self.getNumberOfCells()
-		self.cellContents: list[list[chess.piece.Piece]] = [[]] * numberOfCells
+		self.cellContents: list[list[Piece]] = [[]] * numberOfCells
 
-		self.pieceSet: chess.pieceSet.PieceSet = pieceSet
+		self.pieceSet: PieceSet = pieceSet
 
 	def getNumberOfCells(self) -> int:
 		return self.cellWidth * self.cellHeight
@@ -63,7 +63,7 @@ class Board:
 		if self.isCellEmpty(cellIndex):
 			return None
 		
-		piece: chess.piece.Piece = self.getCellContents(cellIndex)[0]
+		piece: Piece = self.getCellContents(cellIndex)[0]
 		return piece
 
 	def isCellEmpty(self, cellIndex: int) -> bool:
@@ -72,14 +72,14 @@ class Board:
 	def doesCellHaveOpponentPiece(self, cellIndex: int, teamIndex: int) -> bool:
 		if not self.isCellEmpty(cellIndex):
 			for _piece in self.getCellContents(cellIndex):
-				piece: chess.piece.Piece = _piece
+				piece: Piece = _piece
 				if piece.teamIndex != teamIndex:
 					return True
 		
 		return False
 
 	def createCellContentsFromCharacter(self, character: str):
-		cellContents: list[chess.piece.Piece] = []
+		cellContents: list[Piece] = []
 		
 		if character is '.':
 			return cellContents

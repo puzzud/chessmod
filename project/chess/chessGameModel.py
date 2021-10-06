@@ -3,7 +3,7 @@ from enum import Enum
 
 from engine.gameModel import GameModel
 import chess.chessPieceSet
-from chess.chessBoard import ChessBoard, ChessEndGameCondition
+import chess.chessBoard
 
 class ChessPhaseId(Enum):
 	PLAY = 0
@@ -25,7 +25,7 @@ class ChessGameModel(GameModel):
 			"Black"
 		]
 
-		self.board = ChessBoard()
+		self.board = chess.chessBoard.ChessBoard()
 
 		self.currentTurnTeamIndex = 0
 		self.phaseId = ChessPhaseId.PLAY
@@ -94,7 +94,7 @@ class ChessGameModel(GameModel):
 		self.notify("turnStarted", self.currentTurnTeamIndex)
 
 		currentMetEndOfGameCondition = self.board.getCurrentMetEndOfGameCondition(self.currentTurnTeamIndex)
-		if currentMetEndOfGameCondition is not ChessEndGameCondition.NONE:
+		if currentMetEndOfGameCondition is not chess.chessBoard.ChessEndGameCondition.NONE:
 			self.endGame(currentMetEndOfGameCondition)
 
 	def endTurn(self) -> None:
@@ -112,9 +112,9 @@ class ChessGameModel(GameModel):
 		self.startTurn()
 
 	def endGame(self, endOfGameCondition: int) -> None:
-		if endOfGameCondition == ChessEndGameCondition.CHECKMATE:
+		if endOfGameCondition == chess.chessBoard.ChessEndGameCondition.CHECKMATE:
 			winningTeamIndex = self.getNextCurrentTurnTeamIndex()
-		elif endOfGameCondition == ChessEndGameCondition.STALEMATE:
+		elif endOfGameCondition == chess.chessBoard.ChessEndGameCondition.STALEMATE:
 			winningTeamIndex = -1
 
 		self.notify("gameEnded", winningTeamIndex)

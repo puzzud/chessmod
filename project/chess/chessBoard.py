@@ -2,8 +2,9 @@ from typing import Dict, List, Set
 from enum import Enum
 
 from chess.board import Board, BoardPieceActionType
-import chess.pieceSet
+import chess.piece
 import chess.chessPieceSet
+import chess.chessPiece
 
 class ChessEndGameCondition(Enum):
 	NONE = -1
@@ -37,7 +38,7 @@ class ChessBoard(Board):
 		else:
 			pieceIndices = self.getAllPieceIndices()
 
-		return list(filter(lambda cellIndex: isinstance(self.getPieceFromCell(cellIndex), chess.chessPieceSet.KingChessPiece), pieceIndices))
+		return list(filter(lambda cellIndex: isinstance(self.getPieceFromCell(cellIndex), chess.chessPiece.KingChessPiece), pieceIndices))
 
 	def isKingInCheck(self, teamIndex: int) -> bool:
 		# Get combined list of all the valid move destination cell indices of all pieces on the other team.
@@ -102,8 +103,8 @@ class ChessBoard(Board):
 		pieceActions = super().getPieceActionsFromMove(fromCellIndex, toCellIndex)
 
 		piece = self.getPieceFromCell(fromCellIndex)
-		if isinstance(piece, chess.chessPieceSet.PawnChessPiece):
-			pawnPiece: chess.chessPieceSet.PawnChessPiece = piece
+		if isinstance(piece, chess.chessPiece.PawnChessPiece):
+			pawnPiece: chess.chessPiece.PawnChessPiece = piece
 			teamIndex = pawnPiece.teamIndex
 			rank = pawnPiece.getRank(self, self.getCellCoordinatesFromIndex(toCellIndex), teamIndex)
 			if rank == 8:
@@ -111,7 +112,9 @@ class ChessBoard(Board):
 				
 		return pieceActions
 	
-	def getPieceActionsFromPawnPromotion(self, cellIndex: int, pawnPiece: chess.chessPieceSet.PawnChessPiece, teamIndex: int) -> List[dict]:
+	def getPieceActionsFromPawnPromotion(self, cellIndex: int, piece: chess.piece.Piece, teamIndex: int) -> List[dict]:
+		pawnPiece: chess.chessPiece.PawnChessPiece = piece
+		
 		return [
 			{
 				"type": BoardPieceActionType.REMOVE_FROM_CELL,
@@ -122,7 +125,7 @@ class ChessBoard(Board):
 			{
 				"type": BoardPieceActionType.ADD_TO_CELL,
 				"cellIndex": cellIndex,
-				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(chess.chessPieceSet.QueenChessPiece),
+				"pieceTypeId": self.pieceSet.getTypeIdFromPieceType(chess.chessPiece.QueenChessPiece),
 				"teamIndex": teamIndex
 			}
 		]
