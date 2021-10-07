@@ -216,9 +216,19 @@ class KingChessPiece(ChessPiece):
 
 		moveDirection = board.getDirectionBetweenCellCoordinates(kingCellCoordinates, rookCellCoordinates)
 
-		# TODO: Check if any of the cells between the king and the rook are not empty.
+		# Check if any of the cells between the king and the rook are not empty.
+		rayCellIndices = board.getCellsFromRay(kingCellCoordinates, moveDirection)
+		if targetCellIndex not in rayCellIndices:
+			return False
 
-		# TODO: Check if either of the two cells from the king to the rook would put this king into check.
+		# Check if either of the two cells from the king to the rook would put this king into check.
+		#if len(rayCellIndices) < 2:
+		#	return False
+		
+		#rayCellIndices = rayCellIndices[:2]
+		#for rayIndex in rayCellIndices:
+		#	if board.doesTargetCellPutTeamKingIntoCheck(cellIndex, rayIndex, piece.teamIndex):
+		#		return False
 
 		return True
 	

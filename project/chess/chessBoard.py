@@ -32,9 +32,12 @@ class ChessBoard(Board):
 
 		return self.getDirectionBetweenCellCoordinates(cellCoordinatesA, cellCoordinatesB)
 
-	def getCellsFromRay(self, sourceCellCoordinates: List[int], direction: List[int], distance: int) -> List[int]:
+	def getCellsFromRay(self, sourceCellCoordinates: List[int], direction: List[int], distance: int = -1) -> List[int]:
 		cellIndices: list[int] = []
 		
+		if distance < 0:
+			distance = max(self.cellWidth, self.cellHeight)
+
 		cellCoordinates = sourceCellCoordinates.copy()
 
 		for offset in range(distance):
@@ -125,9 +128,9 @@ class ChessBoard(Board):
 		validTargetCellIndices = super().getValidTargetCellIndices(cellIndex)
 		teamIndex = self.getPieceFromCell(cellIndex).teamIndex
 
-		return list(filter(lambda targetCellIndex: not self.doTargetCellsPutTeamKingIntoCheck(cellIndex, targetCellIndex, teamIndex), validTargetCellIndices))
+		return list(filter(lambda targetCellIndex: not self.doesTargetCellPutTeamKingIntoCheck(cellIndex, targetCellIndex, teamIndex), validTargetCellIndices))
 
-	def doTargetCellsPutTeamKingIntoCheck(self, activeCellIndex: int, targetCellIndex: int, teamIndex: int) -> bool:
+	def doesTargetCellPutTeamKingIntoCheck(self, activeCellIndex: int, targetCellIndex: int, teamIndex: int) -> bool:
 		# Temporarily make move.
 		pieceActions = self.performPieceAction(activeCellIndex, targetCellIndex)
 		
