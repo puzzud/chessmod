@@ -18,7 +18,7 @@ class ClGameView(GameView):
 			"pieceActivated": self.onPieceActivated,
 			"pieceDeactivated": self.onPieceDeactivated,
 			"invalidCellSelected": self.onInvalidCellSelected,
-			"pieceMoved": self.onPieceMoved
+			"actionsMade": self.onActionsMade
 		}
 
 		self.attach(chessGameModel, "cellSelected")
@@ -30,7 +30,7 @@ class ClGameView(GameView):
 		chessGameModel.attach(self, "pieceActivated")
 		chessGameModel.attach(self, "pieceDeactivated")
 		chessGameModel.attach(self, "invalidCellSelected")
-		chessGameModel.attach(self, "pieceMoved")
+		chessGameModel.attach(self, "actionsMade")
 	
 		self.board: ChessBoard = None
 		self.teamNames: list[str] = []
@@ -78,7 +78,7 @@ class ClGameView(GameView):
 	def onInvalidCellSelected(self, cellIndex: int) -> None:
 		print("Invalid Selection: " + str(cellIndex))
 
-	def onPieceMoved(self, payload: List[int]) -> None:
+	def onActionsMade(self, pieceActions: List[dict]) -> None:
 		#print("Moved Piece")
 		pass
 	

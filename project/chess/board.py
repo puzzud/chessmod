@@ -96,34 +96,25 @@ class Board:
 				self.setCellContents(cellIndex, self.createCellContentsFromCharacter(character))
 				x += 1
 			y += 1
-	
-	def getCellsFromRay(self, sourceCellCoordinates: List[int], direction: List[int], distance: int) -> List[int]:
-		cellIndices: list[int] = []
-		
-		cellCoordinates = sourceCellCoordinates.copy()
 
-		for offset in range(distance):
-			cellCoordinates[0] += direction[0]
-			cellCoordinates[1] += direction[1]
-			if not self.areCellCoordinatesOnBoard(cellCoordinates):
-				break
-
-			cellIndex = self.getCellIndexFromCoordinates(cellCoordinates)
-
-			cellIndices.append(cellIndex)
-
-			# Stop after meeting a piece.
-			if not self.isCellEmpty(cellIndex):
-				break
-		
-		return cellIndices
-
-	def getValidMoveCellIndices(self, cellIndex: int) -> List[int]:
+	def getValidTargetCellIndices(self, cellIndex: int) -> List[int]:
 		piece = self.getPieceFromCell(cellIndex)
-		return piece.getPossibleMoves(self, cellIndex)
+		if piece is None:
+			print("getValidTargetCellIndices: Error")
+			return []
+		
+		return piece.getPossibleTargetCellIndices(self, cellIndex)
 
-	def isValidMoveDestination(self, sourceCellIndex: int, toCellIndex: int) -> bool:
-		return toCellIndex in self.getValidMoveCellIndices(sourceCellIndex)
+	def isValidTargetCell(self, sourceCellIndex: int, targetCellIndex: int) -> bool:
+		return targetCellIndex in self.getValidTargetCellIndices(sourceCellIndex)
+
+	def getValidAttackCellIndices(self, cellIndex: int) -> List[int]:
+		piece = self.getPieceFromCell(cellIndex)
+		if piece is None:
+			print("getValidAttackCellIndices: Error")
+			return []
+		
+		return piece.getPossibleAttackCellIndices(self, cellIndex)
 
 	def reversePieceActions(self, pieceActions: List[dict]) -> List[dict]:
 		pieceActions.reverse()
@@ -138,6 +129,9 @@ class Board:
 				toCellIndex: int = pieceAction["toCellIndex"]
 				pieceAction["toCellIndex"] = fromCellIndex
 				pieceAction["fromCellIndex"] = toCellIndex
+				if pieceAction["pieceTypeId"] > -1:
+					moveCount = pieceAction["moveCount"]
+					pieceAction["moveCount"] = moveCount - 1
 
 		return pieceActions
 
@@ -149,7 +143,7 @@ class Board:
 				pieceTypeId = pieceAction["pieceTypeId"]
 				if pieceTypeId > -1:
 					piece = self.pieceSet.createPieceFromTypeId(pieceTypeId)
-					piece.teamIndex = pieceAction["teamIndex"]
+					piece.populateAttributesFromDict(pieceAction)
 					self.setCellContents(cellIndex, [piece])
 			elif pieceActionType == BoardPieceActionType.REMOVE_FROM_CELL:
 				cellIndex: int = pieceAction["cellIndex"]
@@ -161,35 +155,46 @@ class Board:
 				pieceTypeId = pieceAction["pieceTypeId"]
 				if pieceTypeId > -1:
 					piece = self.pieceSet.createPieceFromTypeId(pieceTypeId)
-					piece.teamIndex = pieceAction["teamIndex"]
+					piece.populateAttributesFromDict(pieceAction)
+					piece.moveCount += 1
 					self.setCellContents(toCellIndex, [piece])
 			else:
 				print("Board::executePieceActions - Encountered unhandled BoardPieceActionType: " + str(pieceActionType))
 		
 		return 0
 
-	def getPieceActionsFromMove(self, fromCellIndex: int, toCellIndex: int) -> List[dict]:
+	def getMovePieceActions(self, fromCellIndex: int, toCellIndex: int) -> List[dict]:
 		fromPiece = self.getPieceFromCell(fromCellIndex)
 		toPiece = self.getPieceFromCell(toCellIndex)
 
-		return [
-			{
-				"type": BoardPieceActionType.REMOVE_FROM_CELL,
-				"cellIndex": toCellIndex,
-				"pieceTypeId": -1 if toPiece is None else self.pieceSet.getTypeIdFromPieceType(type(toPiece)),
-				"teamIndex": -1 if toPiece is None else toPiece.teamIndex
-			},
-			{
-				"type": BoardPieceActionType.MOVE_TO_CELL,
-				"fromCellIndex": fromCellIndex,
-				"toCellIndex": toCellIndex,
-				"pieceTypeId": -1 if fromPiece is None else self.pieceSet.getTypeIdFromPieceType(type(fromPiece)),
-				"teamIndex": -1 if fromPiece is None else fromPiece.teamIndex
-			}
-		]
+		removeFromCellAction = {
+			"type": BoardPieceActionType.REMOVE_FROM_CELL,
+			"cellIndex": toCellIndex,
+			"pieceTypeId": -1 if toPiece is None else self.pieceSet.getTypeIdFromPieceType(type(toPiece))
+		}
 
-	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> List[dict]:
-		pieceActions = self.getPieceActionsFromMove(fromCellIndex, toCellIndex)
+		if toPiece is not None:
+			removeFromCellAction = {**removeFromCellAction, **toPiece.getAttributesAsDict()}
+
+		addToCellAction = {
+			"type": BoardPieceActionType.MOVE_TO_CELL,
+			"fromCellIndex": fromCellIndex,
+			"toCellIndex": toCellIndex,
+			"pieceTypeId": -1 if fromPiece is None else self.pieceSet.getTypeIdFromPieceType(type(fromPiece))
+		}
+
+		if fromPiece is not None:
+			addToCellAction = {**addToCellAction, **fromPiece.getAttributesAsDict()}
+		
+		return [removeFromCellAction, addToCellAction]
+	
+	def getPieceActionsFromTargetCell(self, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
+		pieceActions = self.getMovePieceActions(activeCellIndex, targetCellIndex)
+
+		return pieceActions
+
+	def performPieceAction(self, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
+		pieceActions = self.getPieceActionsFromTargetCell(activeCellIndex, targetCellIndex)
 	
 		self.executePieceActions(pieceActions)
 

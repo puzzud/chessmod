@@ -69,7 +69,7 @@ class ChessGameModel(GameModel):
 
 		payload = {
 			"activatedCellIndex": cellIndex,
-			"validCellIndices": self.board.getValidMoveCellIndices(cellIndex)
+			"validCellIndices": self.board.getValidTargetCellIndices(cellIndex)
 		}
 
 		self.notify("pieceActivated", payload)
@@ -80,12 +80,12 @@ class ChessGameModel(GameModel):
 
 		self.notify("pieceDeactivated", cellIndex)
 
-	def movePiece(self, fromCellIndex: int, toCellIndex: int) -> None:
-		self.board.movePiece(fromCellIndex, toCellIndex)
+	def performPieceAction(self, activeCellIndex: int, targetCellIndex: int) -> None:
+		pieceActions = self.board.performPieceAction(activeCellIndex, targetCellIndex)
 
 		self.activatedPieceCellIndex = -1
 
-		self.notify("pieceMoved", [fromCellIndex, toCellIndex])
+		self.notify("actionsMade", pieceActions)
 
 	def startTurn(self) -> None:
 		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
@@ -134,9 +134,9 @@ class ChessGameModel(GameModel):
 					isValidCell = True
 					self.deactivatePiece(cellIndex)
 				else:
-					isValidCell = self.board.isValidMoveDestination(self.activatedPieceCellIndex, cellIndex)
+					isValidCell = self.board.isValidTargetCell(self.activatedPieceCellIndex, cellIndex)
 					if isValidCell:
-						self.movePiece(self.activatedPieceCellIndex, cellIndex)
+						self.performPieceAction(self.activatedPieceCellIndex, cellIndex)
 						self.endTurn()
 
 		if not isValidCell:
