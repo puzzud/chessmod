@@ -12,6 +12,7 @@ class GuiGameController(GameController):
 		super().__init__(gameModel)
 
 		self.signalHandlers: dict[str, function] = {
+			"cellSelected": self.onCellSelected,
 			"textCommandIssued": self.onTextCommandIssued
 		}
 
@@ -23,8 +24,10 @@ class GuiGameController(GameController):
 			pygame.MOUSEBUTTONUP: self.onMouseEvent
 		}
 
+		guiGameView.attach(self, "cellSelected")
 		guiGameView.attach(self, "textCommandIssued")
 
+		self.attach(gameModel, "cellSelected")
 		self.attach(guiGameView, "keyDown")
 		self.attach(guiGameView, "pointerDown")
 
@@ -59,6 +62,9 @@ class GuiGameController(GameController):
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			self.notify("pointerDown", event.pos)
 	
+	def onCellSelected(self, cellIndex: int) -> None:
+		self.notify("cellSelected", cellIndex)
+
 	def onTextCommandIssued(self, textCommand: str) -> None:
 		textCommand = str(textCommand)
 		if textCommand == "quit":

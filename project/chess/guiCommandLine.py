@@ -10,27 +10,33 @@ class GuiCommandLine(GuiLabel):
 	def __init__(self, position: List) -> None:
 		super().__init__(position, "", "", 64)
 
+		self.prefixTest = ":"
+		self.commandText = ""
+
 		self.surface = pygame.Surface([256, 64], pygame.SRCALPHA, 32)
 		self.surface.convert_alpha()
 
+		self.setCommandText(self.commandText)
+
 		self.render()
 
+	def setCommandText(self, commandText: str) -> None:
+		self.setText(self.prefixTest + self.commandText)
+
 	def onKeyDown(self, keyCode: int) -> None:
-		newText = self.text
+		newCommandText = self.commandText
 		
 		if keyCode == pygame.K_BACKSPACE:
-			newLength = len(newText) - 1
+			newLength = len(newCommandText) - 1
 			if newLength < 0:
 				return
 			
-			newText = newText[:newLength]
+			newCommandText = newCommandText[:newLength]
 		elif keyCode == pygame.K_RETURN:
 			self.notify("commandLineEntered", self.text)
-			newText = ""
+			newCommandText = ""
 		else:
-			newText += chr(keyCode % 256)
+			newCommandText += chr(keyCode % 256)
 
-		self.setText(newText)
-
-		self.render()
-	
+		self.setCommandText(newCommandText)
+		

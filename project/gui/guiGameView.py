@@ -30,8 +30,6 @@ class GuiGameView(GameView):
 			"actionsMade": self.onActionsMade
 		}
 
-		self.attach(chessGameModel, "cellSelected")
-		
 		chessGameModel.attach(self, "gameInitialized")
 		chessGameModel.attach(self, "turnStarted")
 		chessGameModel.attach(self, "turnEnded")
