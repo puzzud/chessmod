@@ -2,11 +2,12 @@ from typing import Dict, List
 import copy
 
 class Piece:
-	def __init__(self, teamIndex: int = -1):
+	def __init__(self, teamIndex: int = -1, moveCount: int = 0):
 		self.teamIndex: int = teamIndex
+		self.moveCount: int = moveCount
 
 	def __copy__(self):
-		return Piece(teamIndex = self.teamIndex)
+		return Piece(teamIndex = self.teamIndex, moveCount = self.moveCount)
 
 	def copy(self):
 		return copy.copy(self)
@@ -20,6 +21,6 @@ class Piece:
 			if attributeValue is not None:
 				setattr(self, key, fromDict[key])
 
-	def getPossibleMoves(self, _board, cellIndex: int) -> List[int]:
+	def getPossibleTargetCellIndices(self, _board, cellIndex: int) -> List[int]:
 		return []
 	

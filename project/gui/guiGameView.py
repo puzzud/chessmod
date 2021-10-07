@@ -24,7 +24,7 @@ class GuiGameView(GameView):
 			"turnEnded" : self.onTurnEnded,
 			"pieceActivated": self.onPieceActivated,
 			"pieceDeactivated": self.onPieceDeactivated,
-			"pieceMoved": self.onPieceMoved
+			"actionsMade": self.onActionsMade
 		}
 
 		self.attach(chessGameModel, "cellSelected")
@@ -34,7 +34,7 @@ class GuiGameView(GameView):
 		chessGameModel.attach(self, "turnEnded")
 		chessGameModel.attach(self, "pieceActivated")
 		chessGameModel.attach(self, "pieceDeactivated")
-		chessGameModel.attach(self, "pieceMoved")
+		chessGameModel.attach(self, "actionsMade")
 
 		self.backgroundColor = (0, 0, 0)
 
@@ -97,7 +97,7 @@ class GuiGameView(GameView):
 
 		self.draw()
 	
-	def onPieceMoved(self, payload: List[int]) -> None:
-		self.guiChessBoard.board.movePiece(payload[0], payload[1])
+	def onActionsMade(self, pieceActions: List[dict]) -> None:
+		self.guiChessBoard.board.executePieceActions(pieceActions)
 
 		self.draw()
