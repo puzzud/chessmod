@@ -222,13 +222,26 @@ class KingChessPiece(ChessPiece):
 			return False
 
 		# Check if either of the two cells from the king to the rook would put this king into check.
-		#if len(rayCellIndices) < 2:
-		#	return False
+		if len(rayCellIndices) < 2:
+			return False
 		
-		#rayCellIndices = rayCellIndices[:2]
-		#for rayIndex in rayCellIndices:
-		#	if board.doesTargetCellPutTeamKingIntoCheck(cellIndex, rayIndex, piece.teamIndex):
-		#		return False
+		kingInCheckDuringMove = False
 
-		return True
+		board.clearCellContents(cellIndex)
+
+		rayCellIndices = rayCellIndices[:2]
+		for rayCellIndex in rayCellIndices:
+			# NOTE: Can't use ChessBoard::doesTargetCellPutTeamKingIntoCheck
+			# because it will cause infinite recursion.
+			# Maybe there is a way to restructure to avoid such.
+			board.setCellContents(rayCellIndex, [piece])
+			kingInCheckDuringMove = board.isKingInCheck(piece.teamIndex)
+			board.clearCellContents(rayCellIndex)
+			
+			if kingInCheckDuringMove:
+				break
+		
+		board.setCellContents(cellIndex, [piece])
+
+		return not kingInCheckDuringMove
 	
