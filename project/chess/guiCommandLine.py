@@ -21,6 +21,7 @@ class GuiCommandLine(GuiLabel):
 		self.render()
 
 	def setCommandText(self, commandText: str) -> None:
+		self.commandText = commandText
 		self.setText(self.prefixTest + self.commandText)
 
 	def onKeyDown(self, keyCode: int) -> None:
@@ -33,10 +34,9 @@ class GuiCommandLine(GuiLabel):
 			
 			newCommandText = newCommandText[:newLength]
 		elif keyCode == pygame.K_RETURN:
-			self.notify("commandLineEntered", self.text)
+			self.notify("commandLineEntered", self.commandText)
 			newCommandText = ""
 		else:
 			newCommandText += chr(keyCode % 256)
 
 		self.setCommandText(newCommandText)
-		
