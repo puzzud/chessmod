@@ -41,3 +41,11 @@ class ChessPieceSet(PieceSet):
 		
 		return 0
 	
+	def getCharacterFromPiece(self, piece: chess.piece.Piece) -> str:
+		character = super().getCharacterFromPiece(piece)
+
+		if piece.teamIndex == 1:
+			return character.lower()
+	
+		return character
+	

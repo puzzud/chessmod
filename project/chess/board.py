@@ -97,6 +97,24 @@ class Board:
 				x += 1
 			y += 1
 
+	def getStringRowList(self) -> List[str]:
+		stringRows: List[str] = []
+		
+		for y in range(self.cellHeight):
+			stringRow: str = ""
+			for x in range(self.cellWidth):
+				piece = self.getPieceFromCell(self.getCellIndexFromCoordinates([x, y]))
+				character = '.' if piece is None else self.pieceSet.getCharacterFromPiece(piece)
+				stringRow += character
+			stringRows.append(stringRow)
+		
+		return stringRows
+
+	def print(self) -> None:
+		for stringRow in self.getStringRowList():
+			print(stringRow)
+		print("")
+
 	def getValidTargetCellIndices(self, cellIndex: int) -> List[int]:
 		piece = self.getPieceFromCell(cellIndex)
 		if piece is None:

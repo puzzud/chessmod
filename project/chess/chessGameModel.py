@@ -87,6 +87,8 @@ class ChessGameModel(GameModel):
 
 		self.notify("actionsMade", pieceActions)
 
+		#self.board.print()
+
 	def startTurn(self) -> None:
 		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
 		self.activatedPieceCellIndex = -1

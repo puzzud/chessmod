@@ -17,6 +17,9 @@ class PieceSet():
 	def getCharacterFromPieceType(self, pieceType: Piece) -> str:
 		return self.pieceTypeCharacters[pieceType]
 
+	def getCharacterFromPiece(self, piece: Piece) -> str:
+		return self.getCharacterFromPieceType(type(piece))
+
 	def createPieceFromCharacter(self, character: str) -> Piece:
 		return Piece()
 	
