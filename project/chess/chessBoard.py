@@ -92,17 +92,17 @@ class ChessBoard(Board):
 		return list(filter(lambda cellIndex: isinstance(self.getPieceFromCell(cellIndex), chess.chessPiece.RookChessPiece), pieceIndices))
 
 	def isKingInCheck(self, teamIndex: int) -> bool:
-		# Get combined list of all the valid move destination cell indices of all pieces on the other team.
-		allOpponentMoveCellIndices: list[int] = []
+		# Get combined list of all the valid attack based destination cell indices of all pieces on the other team.
+		allOpponentAttackCellIndices: list[int] = []
 
 		for opponentTeamPieceIndex in self.getAllOpponentTeamPieceIndices(teamIndex):
-			allOpponentMoveCellIndices += super().getValidTargetCellIndices(opponentTeamPieceIndex)
+			allOpponentAttackCellIndices += self.getValidAttackCellIndices(opponentTeamPieceIndex)
 
-		allOpponentMoveCellIndices = set(allOpponentMoveCellIndices)
+		allOpponentMoveCellIndices = set(allOpponentAttackCellIndices)
 
 		# Is this king's cell index in this list?
 		for teamKingCellIndex in self.getAllKingIndices(teamIndex):
-			if teamKingCellIndex in allOpponentMoveCellIndices:
+			if teamKingCellIndex in allOpponentAttackCellIndices:
 				return True
 
 		return False

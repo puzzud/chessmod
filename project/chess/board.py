@@ -108,6 +108,14 @@ class Board:
 	def isValidTargetCell(self, sourceCellIndex: int, targetCellIndex: int) -> bool:
 		return targetCellIndex in self.getValidTargetCellIndices(sourceCellIndex)
 
+	def getValidAttackCellIndices(self, cellIndex: int) -> List[int]:
+		piece = self.getPieceFromCell(cellIndex)
+		if piece is None:
+			print("getValidAttackCellIndices: Error")
+			return []
+		
+		return piece.getPossibleAttackCellIndices(self, cellIndex)
+
 	def reversePieceActions(self, pieceActions: List[dict]) -> List[dict]:
 		pieceActions.reverse()
 		for pieceAction in pieceActions:

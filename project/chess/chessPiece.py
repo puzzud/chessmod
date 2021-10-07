@@ -10,6 +10,13 @@ class ChessPiece(Piece):
 	def __copy__(self):
 		return ChessPiece(teamIndex = self.teamIndex, moveCount = self.moveCount)
 
+	# Most chess pieces will just use all possible target cells that have
+	# opponents in them, as most of them just move.	
+	def getPossibleAttackCellIndices(self, _board, cellIndex: int) -> List[int]:
+		board: chess.chessBoard.ChessBoard = _board
+		possibleTargetCellIndices = self.getPossibleTargetCellIndices(board, cellIndex)
+		return list(filter(lambda cellIndex: board.doesCellHaveOpponentPiece(cellIndex, self.teamIndex), possibleTargetCellIndices))
+
 class PawnChessPiece(ChessPiece):
 	def __init__(self):
 		super().__init__()
@@ -164,7 +171,12 @@ class KingChessPiece(ChessPiece):
 		super().__init__()
 
 	def getPossibleTargetCellIndices(self, _board, cellIndex: int) -> List[int]:
-		possibleTargetCellIndices: list[int] = []
+		possibleTargetCellIndices: list[int] = self.getPossibleMoveCellIndices(_board, cellIndex)
+		possibleTargetCellIndices += self.getPossibleCastleTargetCellIndices(_board, cellIndex)
+		return possibleTargetCellIndices
+
+	def getPossibleMoveCellIndices(self, _board, cellIndex: int) -> List[int]:
+		possibleMoveCellIndices: list[int] = []
 
 		board: chess.chessBoard.ChessBoard = _board
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
@@ -184,14 +196,28 @@ class KingChessPiece(ChessPiece):
 
 		for moveDirection in moveDirections:
 			rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, moveDistance)
-			possibleTargetCellIndices += list(filter(lambda cellIndex: board.isCellEmpty(cellIndex) or board.doesCellHaveOpponentPiece(cellIndex, self.teamIndex), rayCells))
+			possibleMoveCellIndices += list(filter(lambda cellIndex: board.isCellEmpty(cellIndex) or board.doesCellHaveOpponentPiece(cellIndex, self.teamIndex), rayCells))
+		
+		# TODO: Should result castle move cells be reported here?
+
+		return possibleMoveCellIndices
+
+	def getPossibleAttackCellIndices(self, _board, cellIndex: int) -> List[int]:
+		board: chess.chessBoard.ChessBoard = _board
+		possibleMoveCellIndices = self.getPossibleMoveCellIndices(board, cellIndex)
+		return list(filter(lambda cellIndex: board.doesCellHaveOpponentPiece(cellIndex, self.teamIndex), possibleMoveCellIndices))
+
+	def getPossibleCastleTargetCellIndices(self, _board, cellIndex: int) -> List[int]:
+		possibleTargetCellIndices: list[int] = []
+		
+		board: chess.chessBoard.ChessBoard = _board
 
 		if self.moveCount == 0:
 			rookIndices = board.getAllRookIndices(self.teamIndex)
 			for rookIndex in rookIndices:
 				if self.isValidCastleTargetCell(cellIndex, rookIndex, board):
 					possibleTargetCellIndices.append(rookIndex)
-
+		
 		return possibleTargetCellIndices
 
 	def isValidCastleTargetCell(self, cellIndex: int, targetCellIndex: int, _board) -> bool:

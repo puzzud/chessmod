@@ -24,3 +24,6 @@ class Piece:
 	def getPossibleTargetCellIndices(self, _board, cellIndex: int) -> List[int]:
 		return []
 	
+	def getPossibleAttackCellIndices(self, _board, cellIndex: int) -> List[int]:
+		return []
+	
