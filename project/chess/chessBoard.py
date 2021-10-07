@@ -125,6 +125,11 @@ class ChessBoard(Board):
 			return ChessEndGameCondition.NONE
 
 	def getValidTargetCellIndices(self, cellIndex: int) -> List[int]:
+		piece = self.getPieceFromCell(cellIndex)
+		if piece is None:
+			print("getValidTargetCellIndices: Error")
+			return []
+		
 		validTargetCellIndices = super().getValidTargetCellIndices(cellIndex)
 		teamIndex = self.getPieceFromCell(cellIndex).teamIndex
 

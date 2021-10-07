@@ -99,6 +99,10 @@ class Board:
 
 	def getValidTargetCellIndices(self, cellIndex: int) -> List[int]:
 		piece = self.getPieceFromCell(cellIndex)
+		if piece is None:
+			print("getValidTargetCellIndices: Error")
+			return []
+		
 		return piece.getPossibleTargetCellIndices(self, cellIndex)
 
 	def isValidTargetCell(self, sourceCellIndex: int, targetCellIndex: int) -> bool:
