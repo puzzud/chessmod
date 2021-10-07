@@ -117,8 +117,9 @@ class Board:
 				toCellIndex: int = pieceAction["toCellIndex"]
 				pieceAction["toCellIndex"] = fromCellIndex
 				pieceAction["fromCellIndex"] = toCellIndex
-				moveCount = pieceAction["moveCount"]
-				pieceAction["moveCount"] = moveCount - 1
+				if pieceAction["pieceTypeId"] > -1:
+					moveCount = pieceAction["moveCount"]
+					pieceAction["moveCount"] = moveCount - 1
 
 		return pieceActions
 
