@@ -4,6 +4,7 @@ import pygame
 from pygame.locals import *
 
 from gui.guiNode import GuiNode
+from chess.guiCommandLine import GuiCommandLine
 from chess.guiPlayerList import GuiPlayerList
 from chess.guiChessBoard import GuiChessBoard
 
@@ -19,7 +20,9 @@ class GuiGameView(GameView):
 
 		self.signalHandlers: dict[str, function] = {
 			"gameInitialized": self.onGameInitialized,
+			"keyDown": self.onKeyDown,
 			"pointerDown": self.onPointerDown,
+			"commandLineEntered": self.onCommandLineEntered,
 			"turnStarted": self.onTurnStarted,
 			"turnEnded" : self.onTurnEnded,
 			"pieceActivated": self.onPieceActivated,
@@ -43,6 +46,7 @@ class GuiGameView(GameView):
 
 		self.screen = pygame.display.set_mode((800, 600))
 
+		self.guiCommandLine: GuiCommandLine = None
 		self.guiChessBoard: GuiChessBoard = None
 		self.guiPlayerList: GuiPlayerList = None
 	
@@ -59,6 +63,7 @@ class GuiGameView(GameView):
 		
 		self.guiChessBoard.draw(self.screen)
 		self.guiPlayerList.draw(self.screen)
+		self.guiCommandLine.draw(self.screen)
 
 		pygame.display.update()
 
@@ -67,7 +72,16 @@ class GuiGameView(GameView):
 		board.loadFromStringRowList(payload["boardStringRowList"])
 		self.guiChessBoard = GuiChessBoard([0, 0], board)
 
-		self.guiPlayerList = GuiPlayerList([self.guiChessBoard.getDimensions()[0] + 64, 0], payload["teamNames"].copy())
+		guiChessBoardDimensions = self.guiChessBoard.getDimensions()
+		self.guiPlayerList = GuiPlayerList([guiChessBoardDimensions[0] + 64, 0], payload["teamNames"].copy())
+
+		self.guiCommandLine = GuiCommandLine([0, guiChessBoardDimensions[1] + 24])
+		self.guiCommandLine.attach(self, "commandLineEntered")
+
+		self.draw()
+
+	def onKeyDown(self, keyCode: int) -> None:
+		self.guiCommandLine.onKeyDown(keyCode)
 
 		self.draw()
 
@@ -75,6 +89,9 @@ class GuiGameView(GameView):
 		cellIndex = self.getCellIndexFromPoint(position)
 		if cellIndex > -1:
 			self.notify("cellSelected", cellIndex)
+
+	def onCommandLineEntered(self, textCommand: str) -> None:
+		self.notify("textCommandIssued", textCommand)
 
 	def onTurnStarted(self, currentTurnTeamIndex: int) -> None:
 		self.guiChessBoard.clearHighlightedCells()

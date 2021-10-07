@@ -141,4 +141,3 @@ class ChessGameModel(GameModel):
 
 		if not isValidCell:
 			self.notify("invalidCellSelected", cellIndex)
-	

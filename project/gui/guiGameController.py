@@ -11,6 +11,10 @@ class GuiGameController(GameController):
 	def __init__(self, gameModel: GameModel, guiGameView: GuiGameView):
 		super().__init__(gameModel)
 
+		self.signalHandlers: dict[str, function] = {
+			"textCommandIssued": self.onTextCommandIssued
+		}
+
 		self.eventHandlers: dict[str, function] = {
 			pygame.QUIT: self.onQuitEvent,
 			pygame.KEYDOWN: self.onKeyEvent,
@@ -19,6 +23,9 @@ class GuiGameController(GameController):
 			pygame.MOUSEBUTTONUP: self.onMouseEvent
 		}
 
+		guiGameView.attach(self, "textCommandIssued")
+
+		self.attach(guiGameView, "keyDown")
 		self.attach(guiGameView, "pointerDown")
 
 		self.running = False
@@ -44,8 +51,16 @@ class GuiGameController(GameController):
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_ESCAPE:
 				self.running = False
+				return
+			
+			self.notify("keyDown", event.key)
 	
 	def onMouseEvent(self, event: pygame.event) -> None:
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			self.notify("pointerDown", event.pos)
+	
+	def onTextCommandIssued(self, textCommand: str) -> None:
+		textCommand = str(textCommand)
+		if textCommand == "quit":
+			self.running = False
 	

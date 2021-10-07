@@ -4,8 +4,12 @@ import pygame
 from pygame import surface
 from pygame.locals import *
 
-class GuiNode():
+from engine.observer import Observer
+
+class GuiNode(Observer):
 	def __init__(self, position: List[int]) -> None:
+		super().__init__()
+
 		self.position = position.copy()
 		self.children: list[GuiNode] = []
 
