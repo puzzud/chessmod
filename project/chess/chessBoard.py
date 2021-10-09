@@ -135,9 +135,7 @@ class ChessBoard(Board):
 		
 		putsTeamKingIntoCheck = self.isKingInCheck(teamIndex)
 		
-		# Reverse temporary move to restore board state.
-		self.reversePieceActions(pieceActions)
-		self.executePieceActions(pieceActions)
+		self.rollbackPieceActions(pieceActions)
 
 		return putsTeamKingIntoCheck
 	

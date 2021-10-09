@@ -19,6 +19,8 @@ class Board:
 
 		self.pieceSet: PieceSet = pieceSet
 
+		self.pieceActionHistory: list[dict] = []
+
 	def getNumberOfCells(self) -> int:
 		return self.cellWidth * self.cellHeight
 
@@ -216,4 +218,14 @@ class Board:
 	
 		self.executePieceActions(pieceActions)
 
+		self.pieceActionHistory += pieceActions
+
 		return pieceActions
+
+	def rollbackPieceActions(self, pieceActions: List[dict]) -> None:
+		# Reverse temporary move to restore board state.
+		self.reversePieceActions(pieceActions)
+		self.executePieceActions(pieceActions)
+
+		self.pieceActionHistory = self.pieceActionHistory[:len(self.pieceActionHistory) - len(pieceActions)]
+		
