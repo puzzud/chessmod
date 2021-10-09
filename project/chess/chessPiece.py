@@ -224,14 +224,18 @@ class KingChessPiece(ChessPiece):
 		board: chess.chessBoard.ChessBoard = _board
 		
 		piece = board.getPieceFromCell(cellIndex)
-		if piece is not None and isinstance(piece, KingChessPiece):
-			if piece.moveCount > 0:
-				return False
+		if piece is None or not isinstance(piece, KingChessPiece):
+			return False
+		
+		if piece.moveCount > 0:
+			return False
 		
 		targetPiece = board.getPieceFromCell(targetCellIndex)
-		if targetPiece is not None and isinstance(targetPiece, RookChessPiece):
-			if piece.moveCount > 0:
-				return False
+		if targetPiece is None or not isinstance(targetPiece, RookChessPiece):
+			return False
+		
+		if targetPiece.moveCount > 0:
+			return False
 		
 		kingCellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
 		rookCellCoordinates = board.getCellCoordinatesFromIndex(targetCellIndex)
