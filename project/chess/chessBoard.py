@@ -125,7 +125,7 @@ class ChessBoard(Board):
 			return []
 		
 		validTargetCellIndices = super().getValidTargetCellIndices(cellIndex)
-		teamIndex = self.getPieceFromCell(cellIndex).teamIndex
+		teamIndex = piece.teamIndex
 
 		return list(filter(lambda targetCellIndex: not self.doesTargetCellPutTeamKingIntoCheck(cellIndex, targetCellIndex, teamIndex), validTargetCellIndices))
 
@@ -144,8 +144,8 @@ class ChessBoard(Board):
 	def areThereValidMoves(self, teamIndex: int) -> bool:
 		allTeamMoveCellIndices: list[int] = []
 
-		for allTeamMoveCellIndex in self.getAllTeamPieceIndices(teamIndex):
-			allTeamMoveCellIndices += self.getValidTargetCellIndices(allTeamMoveCellIndex)
+		for cellIndex in self.getAllTeamPieceIndices(teamIndex):
+			allTeamMoveCellIndices += self.getValidTargetCellIndices(cellIndex)
 
 		return (len(allTeamMoveCellIndices) > 0)
 	
