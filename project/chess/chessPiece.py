@@ -255,23 +255,10 @@ class KingChessPiece(ChessPiece):
 		if len(rayCellIndices) < 2:
 			return False
 		
-		kingInCheckDuringMove = False
-
-		board.clearCellContents(cellIndex)
-
 		rayCellIndices = rayCellIndices[:2]
 		for rayCellIndex in rayCellIndices:
-			# NOTE: Can't use ChessBoard::doesTargetCellPutTeamKingIntoCheck
-			# because it will cause infinite recursion.
-			# Maybe there is a way to restructure to avoid such.
-			board.setCellContents(rayCellIndex, [piece])
-			kingInCheckDuringMove = board.isKingInCheck(piece.teamIndex)
-			board.clearCellContents(rayCellIndex)
-			
-			if kingInCheckDuringMove:
-				break
-		
-		board.setCellContents(cellIndex, [piece])
+			if board.doesTargetCellPutTeamKingIntoCheck(cellIndex, rayCellIndex, piece.teamIndex):
+				return False
 
-		return not kingInCheckDuringMove
+		return True
 	
