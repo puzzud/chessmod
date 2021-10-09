@@ -16,9 +16,7 @@ class ChessGameModel(GameModel):
 	def __init__(self):
 		super().__init__()
 
-		self.signalHandlers: dict[str, function] = {
-			"cellSelected": self.onCellSelected
-		}
+		self.signalHandlers["cellSelected"] = self.onCellSelected
 
 		self.teamNames = [
 			"White",

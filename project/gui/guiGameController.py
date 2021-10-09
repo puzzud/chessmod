@@ -11,10 +11,8 @@ class GuiGameController(GameController):
 	def __init__(self, gameModel: GameModel, guiGameView: GuiGameView):
 		super().__init__(gameModel)
 
-		self.signalHandlers: dict[str, function] = {
-			"cellSelected": self.onCellSelected,
-			"textCommandIssued": self.onTextCommandIssued
-		}
+		self.signalHandlers["cellSelected"] = self.onCellSelected
+		self.signalHandlers["textCommandIssued"] = self.onTextCommandIssued
 
 		self.eventHandlers: dict[str, function] = {
 			pygame.QUIT: self.onQuitEvent,

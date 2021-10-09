@@ -10,16 +10,14 @@ class ClGameView(GameView):
 	def __init__(self, chessGameModel: ChessGameModel):
 		super().__init__(chessGameModel)
 
-		self.signalHandlers: dict[str, function] = {
-			"gameInitialized": self.onGameInitialized,
-			"gameEnded": self.onGameEnded,
-			"turnStarted": self.onTurnStarted,
-			"turnEnded" : self.onTurnEnded,
-			"pieceActivated": self.onPieceActivated,
-			"pieceDeactivated": self.onPieceDeactivated,
-			"invalidCellSelected": self.onInvalidCellSelected,
-			"actionsMade": self.onActionsMade
-		}
+		self.signalHandlers["gameInitialized"] = self.onGameInitialized
+		self.signalHandlers["gameEnded"] = self.onGameEnded
+		self.signalHandlers["turnStarted"] = self.onTurnStarted
+		self.signalHandlers["turnEnded"] = self.onTurnEnded
+		self.signalHandlers["pieceActivated"] = self.onPieceActivated
+		self.signalHandlers["pieceDeactivated"] = self.onPieceDeactivated
+		self.signalHandlers["invalidCellSelected"] = self.onInvalidCellSelected
+		self.signalHandlers["actionsMade"] = self.onActionsMade
 
 		self.attach(chessGameModel, "cellSelected")
 

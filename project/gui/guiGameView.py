@@ -18,17 +18,15 @@ class GuiGameView(GameView):
 	def __init__(self, chessGameModel: ChessGameModel):
 		super().__init__(chessGameModel)
 
-		self.signalHandlers: dict[str, function] = {
-			"gameInitialized": self.onGameInitialized,
-			"keyDown": self.onKeyDown,
-			"pointerDown": self.onPointerDown,
-			"commandLineEntered": self.onCommandLineEntered,
-			"turnStarted": self.onTurnStarted,
-			"turnEnded" : self.onTurnEnded,
-			"pieceActivated": self.onPieceActivated,
-			"pieceDeactivated": self.onPieceDeactivated,
-			"actionsMade": self.onActionsMade
-		}
+		self.signalHandlers["gameInitialized"] = self.onGameInitialized
+		self.signalHandlers["keyDown"] = self.onKeyDown
+		self.signalHandlers["pointerDown"] = self.onPointerDown
+		self.signalHandlers["commandLineEntered"] = self.onCommandLineEntered
+		self.signalHandlers["turnStarted"] = self.onTurnStarted
+		self.signalHandlers["turnEnded"] = self.onTurnEnded
+		self.signalHandlers["pieceActivated"] = self.onPieceActivated
+		self.signalHandlers["pieceDeactivated"] = self.onPieceDeactivated
+		self.signalHandlers["actionsMade"] = self.onActionsMade
 
 		chessGameModel.attach(self, "gameInitialized")
 		chessGameModel.attach(self, "turnStarted")
