@@ -107,19 +107,13 @@ class ChessBoard(Board):
 
 		return False
 
-	def isKingInCheckMate(self, currentTurnTeamIndex: int) -> bool:
-		return self.isKingInCheck(currentTurnTeamIndex) and not self.areThereValidMoves(currentTurnTeamIndex)
-
-	def isGameInStalemate(self, currentTurnTeamIndex: int) -> bool:
-		if self.isKingInCheck(currentTurnTeamIndex):
-			return False
-
-		return not self.areThereValidMoves(currentTurnTeamIndex)
-
 	def getCurrentMetEndOfGameCondition(self, currentTurnTeamIndex: int) -> int:
-		if self.isGameInStalemate(currentTurnTeamIndex):
+		isKingInCheck = self.isKingInCheck(currentTurnTeamIndex)
+		areThereValidMoves = self.areThereValidMoves(currentTurnTeamIndex)
+
+		if not isKingInCheck and not areThereValidMoves:
 			return ChessEndGameCondition.STALEMATE
-		elif self.isKingInCheckMate(currentTurnTeamIndex):
+		elif not areThereValidMoves:
 			return ChessEndGameCondition.CHECKMATE
 		else:
 			return ChessEndGameCondition.NONE
