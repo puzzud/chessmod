@@ -1,4 +1,5 @@
 from typing import Dict, List
+import functools
 
 from chess.piece import Piece
 import chess.chessBoard
@@ -28,9 +29,7 @@ class PawnChessPiece(ChessPiece):
 		cellCoordinates = board.getCellCoordinatesFromIndex(cellIndex)
 
 		# Move forward
-		moveDirection = [0, 1]
-		if self.teamIndex == 0:
-			moveDirection[1] *= -1
+		moveDirection = self.getPrimaryDirection()
 		
 		moveDistance = 2 if self.getRank(board, cellCoordinates) == 2 else 1
 
@@ -47,11 +46,76 @@ class PawnChessPiece(ChessPiece):
 		rayCells = board.getCellsFromRay(cellCoordinates, moveDirection, 1)
 		possibleTargetCellIndices += list(filter(lambda cellIndex: board.doesCellHaveOpponentPiece(cellIndex, self.teamIndex), rayCells))
 
+		# Check for en passant.
+		enPassantTargetCellIndex = self.getEnPassantTargetCellIndex(_board, cellCoordinates)
+		if enPassantTargetCellIndex > -1:
+			possibleTargetCellIndices.append(enPassantTargetCellIndex)
+
 		return possibleTargetCellIndices
 	
+	def getPrimaryDirection(self) -> List[int]:
+		direction = [0, 1]
+		if self.teamIndex == 0:
+			direction[1] *= -1
+		
+		return direction
+
 	def getRank(self, _board, cellCoordinates: List[int]) -> int:
 		board: chess.chessBoard.ChessBoard = _board
 		return board.cellHeight - cellCoordinates[1] if self.teamIndex == 0 else cellCoordinates[1] + 1
+
+	def getEnPassantTargetCellIndex(self, _board, cellCoordinates: List[int]) -> int:
+		board: chess.chessBoard.ChessBoard = _board
+		
+		# Get last piece to move.
+		numberOfPieceActionsInHistory = len(board.pieceActionHistory)
+		if numberOfPieceActionsInHistory == 0:
+			return -1
+		
+		lastPieceAction = board.pieceActionHistory[numberOfPieceActionsInHistory - 1]
+		
+		if lastPieceAction["type"] != chess.chessBoard.BoardPieceActionType.MOVE_TO_CELL:
+			return -1
+
+		# It needs to be a pawn.
+		lastMovedPieceTypeId = lastPieceAction["pieceTypeId"]
+		if lastMovedPieceTypeId != board.pieceSet.getTypeIdFromPieceType(PawnChessPiece):
+			return -1
+
+		# It cannot have moved more than once.
+		lastMovedPieceCellIndex = lastPieceAction["toCellIndex"]
+		lastMovedPawn: PawnChessPiece = board.getPieceFromCell(lastMovedPieceCellIndex)
+		if lastMovedPawn.moveCount > 1:
+			return -1
+
+		# It needs to be at rank 4.
+		# TODO: Is it better to make sure its only moved 2 cells at once
+		# (checking fromCellIndex and vertical distance),
+		# in order to allow for alternate starting piece formations?
+		# Would want to change associated logic with first move rules to match.
+		lastMovedPieceCellCoordinates = board.getCellCoordinatesFromIndex(lastMovedPieceCellIndex)
+		if lastMovedPawn.getRank(board, lastMovedPieceCellCoordinates) != 4:
+			return -1
+
+		# It needs to be directly to the left or right of this pawn.
+		distance = board.getDistanceBetweenCellCoordinates(cellCoordinates, lastMovedPieceCellCoordinates)
+		if distance[1] > 0 or distance[0] > 1:
+			return -1
+
+		# Pawn move & en passant rules implicate that the cell directly behind
+		# the captured pawn will be empty.
+		# Assume it's a legit cell that can be moved into.
+		primaryDirection = self.getPrimaryDirection()
+		enPassantToCoordinates = [
+			lastMovedPieceCellCoordinates[0],
+			lastMovedPieceCellCoordinates[1] + primaryDirection[1]
+		]
+		
+		return board.getCellIndexFromCoordinates(enPassantToCoordinates)
+
+	def isValidEnPassantTargetCell(self, cellIndex: int, targetCellIndex: int, _board) -> bool:
+		board: chess.chessBoard.ChessBoard = _board
+		return self.getEnPassantTargetCellIndex(board, board.getCellCoordinatesFromIndex(cellIndex)) == cellIndex
 
 class RookChessPiece(ChessPiece):
 	def __init__(self):

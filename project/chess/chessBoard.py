@@ -15,15 +15,24 @@ class ChessBoard(Board):
 	def __init__(self):
 		super().__init__(8, 8, chess.chessPieceSet.ChessPieceSet())
 
-	def getDirectionBetweenCellCoordinates(self, cellCoordinatesA: List[int], cellCoordinatesB: List[int]) -> List[int]:
-		moveDistance = [
+	def getDifferenceBetweenCellCoordinates(self, cellCoordinatesA: List[int], cellCoordinatesB: List[int]) -> List[int]:
+		return [
 			cellCoordinatesB[0] - cellCoordinatesA[0],
 			cellCoordinatesB[1] - cellCoordinatesA[1]
 		]
-
+	
+	def getDistanceBetweenCellCoordinates(self, cellCoordinatesA: List[int], cellCoordinatesB: List[int]) -> List[int]:
+		difference = self.getDifferenceBetweenCellCoordinates(cellCoordinatesA, cellCoordinatesB)
 		return [
-			int(0 if moveDistance[0] == 0 else moveDistance[0] / abs(moveDistance[0])),
-			int(0 if moveDistance[1] == 0 else moveDistance[1] / abs(moveDistance[1]))
+			abs(difference[0]),
+			abs(difference[1])
+		]
+
+	def getDirectionBetweenCellCoordinates(self, cellCoordinatesA: List[int], cellCoordinatesB: List[int]) -> List[int]:
+		difference = self.getDifferenceBetweenCellCoordinates(cellCoordinatesA, cellCoordinatesB)
+		return [
+			int(0 if difference[0] == 0 else difference[0] / abs(difference[0])),
+			int(0 if difference[1] == 0 else difference[1] / abs(difference[1]))
 		]
 
 	def getDirectionBetweenCellIndices(self, cellIndexA: int, cellIndexB: int) -> List[int]:
@@ -179,7 +188,11 @@ class ChessBoard(Board):
 
 	def getPieceActionsFromTargetCell(self, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
 		piece = self.getPieceFromCell(activeCellIndex)
-		if isinstance(piece, chess.chessPiece.KingChessPiece):
+		if isinstance(piece, chess.chessPiece.PawnChessPiece):
+			pawnPiece: chess.chessPiece.PawnChessPiece = piece
+			if targetCellIndex == piece.getEnPassantTargetCellIndex(self, self.getCellCoordinatesFromIndex(activeCellIndex)):
+				return self.getPieceActionsFromEnPassant(activeCellIndex, targetCellIndex, pawnPiece)
+		elif isinstance(piece, chess.chessPiece.KingChessPiece):
 			kingPiece: chess.chessPiece.KingChessPiece = piece
 			if kingPiece.isValidCastleTargetCell(activeCellIndex, targetCellIndex, self):
 				return self.getPieceActionsFromCastle(activeCellIndex, targetCellIndex, kingPiece)
@@ -206,4 +219,21 @@ class ChessBoard(Board):
 		rookMovePieceActions = self.getMovePieceActions(targetCellIndex, rookToCellIndex)
 
 		return rookMovePieceActions + kingMovePieceActions
+	
+	def getPieceActionsFromEnPassant(self, activeCellIndex: int, targetCellIndex: int, piece: chess.piece.Piece) -> List[dict]:
+		# NOTE: Assumes piece is a pawn.
+		pawnPiece: chess.chessPiece.PawnChessPiece = piece
+
+		# NOTE: Assumes en passant is possible.
+		pawnFromCellCoordinates = self.getCellCoordinatesFromIndex(activeCellIndex)
+		pawnToCellCoordinates = self.getCellCoordinatesFromIndex(targetCellIndex)
+		otherPawnCellCoordinates = [
+			pawnToCellCoordinates[0],
+			pawnFromCellCoordinates[1]
+		]
+
+		otherPawnRemovePieceActions = self.getRemovePieceActions(self.getCellIndexFromCoordinates(otherPawnCellCoordinates))
+		movePawnPieceActions = self.getMovePieceActions(activeCellIndex, targetCellIndex)
+
+		return otherPawnRemovePieceActions + movePawnPieceActions
 	

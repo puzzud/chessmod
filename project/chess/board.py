@@ -183,19 +183,24 @@ class Board:
 		
 		return 0
 
-	def getMovePieceActions(self, fromCellIndex: int, toCellIndex: int) -> List[dict]:
-		fromPiece = self.getPieceFromCell(fromCellIndex)
-		toPiece = self.getPieceFromCell(toCellIndex)
+	def getRemovePieceActions(self, cellIndex: int) -> List[dict]:
+		piece = self.getPieceFromCell(cellIndex)
 
 		removeFromCellAction = {
 			"type": BoardPieceActionType.REMOVE_FROM_CELL,
-			"cellIndex": toCellIndex,
-			"pieceTypeId": -1 if toPiece is None else self.pieceSet.getTypeIdFromPieceType(type(toPiece))
+			"cellIndex": cellIndex,
+			"pieceTypeId": -1 if piece is None else self.pieceSet.getTypeIdFromPieceType(type(piece))
 		}
 
-		if toPiece is not None:
-			removeFromCellAction = {**removeFromCellAction, **toPiece.getAttributesAsDict()}
+		if piece is not None:
+			removeFromCellAction = {**removeFromCellAction, **piece.getAttributesAsDict()}
+		
+		return [removeFromCellAction]
 
+	def getMovePieceActions(self, fromCellIndex: int, toCellIndex: int) -> List[dict]:
+		pieceActions = self.getRemovePieceActions(toCellIndex)
+
+		fromPiece = self.getPieceFromCell(fromCellIndex)
 		addToCellAction = {
 			"type": BoardPieceActionType.MOVE_TO_CELL,
 			"fromCellIndex": fromCellIndex,
@@ -206,7 +211,9 @@ class Board:
 		if fromPiece is not None:
 			addToCellAction = {**addToCellAction, **fromPiece.getAttributesAsDict()}
 		
-		return [removeFromCellAction, addToCellAction]
+		pieceActions.append(addToCellAction)
+
+		return pieceActions
 	
 	def getPieceActionsFromTargetCell(self, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
 		pieceActions = self.getMovePieceActions(activeCellIndex, targetCellIndex)
@@ -228,4 +235,3 @@ class Board:
 		self.executePieceActions(pieceActions)
 
 		self.pieceActionHistory = self.pieceActionHistory[:len(self.pieceActionHistory) - len(pieceActions)]
-		
