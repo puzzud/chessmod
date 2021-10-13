@@ -133,9 +133,6 @@ class PawnChessPiece(ChessPiece):
 	def getPieceActionsFromEnPassant(self, _board, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
 		board: chess.chessBoard.ChessBoard = _board
 		
-		# NOTE: Assumes piece is a pawn.
-		pawnPiece: PawnChessPiece = self
-
 		# NOTE: Assumes en passant is possible.
 		pawnFromCellCoordinates = board.getCellCoordinatesFromIndex(activeCellIndex)
 		pawnToCellCoordinates = board.getCellCoordinatesFromIndex(targetCellIndex)
@@ -381,9 +378,6 @@ class KingChessPiece(ChessPiece):
 
 	def getPieceActionsFromCastle(self, _board, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
 		board: chess.chessBoard.ChessBoard = _board
-		
-		# NOTE: Assumes piece is a king.
-		kingPiece: KingChessPiece = self
 
 		# NOTE: Assumes a castle is possible (isValidCastleTargetCell is True).
 		kingCellCoordinates = board.getCellCoordinatesFromIndex(activeCellIndex)
