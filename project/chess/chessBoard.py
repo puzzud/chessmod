@@ -107,7 +107,7 @@ class ChessBoard(Board):
 		for opponentTeamPieceIndex in self.getAllOpponentTeamPieceIndices(teamIndex):
 			allOpponentAttackCellIndices += self.getValidAttackCellIndices(opponentTeamPieceIndex)
 
-		allOpponentMoveCellIndices = set(allOpponentAttackCellIndices)
+		allOpponentAttackCellIndices = list(set(allOpponentAttackCellIndices))
 
 		# Is this king's cell index in this list?
 		for teamKingCellIndex in self.getAllKingIndices(teamIndex):
@@ -149,10 +149,10 @@ class ChessBoard(Board):
 		return putsTeamKingIntoCheck
 	
 	def areThereValidMoves(self, teamIndex: int) -> bool:
-		allTeamMoveCellIndices: list[int] = []
+		allTeamValidTargetCellIndices: list[int] = []
 
 		for cellIndex in self.getAllTeamPieceIndices(teamIndex):
-			allTeamMoveCellIndices += self.getValidTargetCellIndices(cellIndex)
+			allTeamValidTargetCellIndices += self.getValidTargetCellIndices(cellIndex)
 
-		return (len(allTeamMoveCellIndices) > 0)
+		return (len(allTeamValidTargetCellIndices) > 0)
 	
