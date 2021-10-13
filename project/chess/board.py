@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 from enum import Enum
 
 from chess.piece import Piece
@@ -183,17 +183,38 @@ class Board:
 		
 		return 0
 
-	def getRemovePieceActions(self, cellIndex: int) -> List[dict]:
-		piece = self.getPieceFromCell(cellIndex)
+	def getAddPieceActions(self, cellIndex: int, pieceTypeId: int, pieceAttributes: Dict[str, Any] = None) -> List[dict]:
+		if pieceTypeId < 0:
+			return []
+
+		addToCellAction = {
+			"type": BoardPieceActionType.ADD_TO_CELL,
+			"cellIndex": cellIndex,
+			"pieceTypeId": pieceTypeId
+		}
+
+		if pieceAttributes is not None:
+			addToCellAction = {**addToCellAction, **pieceAttributes}
+		
+		return [addToCellAction]
+
+	def getRemovePieceActions(self, cellIndex: int, pieceTypeId: int = -1) -> List[dict]:
+		pieceAttributes: dict[str, Any] = None
+		
+		if pieceTypeId < 0:
+			piece = self.getPieceFromCell(cellIndex)
+			if piece is not None:
+				pieceTypeId = self.pieceSet.getTypeIdFromPieceType(type(piece))
+				pieceAttributes = piece.getAttributesAsDict()
 
 		removeFromCellAction = {
 			"type": BoardPieceActionType.REMOVE_FROM_CELL,
 			"cellIndex": cellIndex,
-			"pieceTypeId": -1 if piece is None else self.pieceSet.getTypeIdFromPieceType(type(piece))
+			"pieceTypeId": pieceTypeId
 		}
 
-		if piece is not None:
-			removeFromCellAction = {**removeFromCellAction, **piece.getAttributesAsDict()}
+		if pieceAttributes is not None:
+			removeFromCellAction = {**removeFromCellAction, **pieceAttributes}
 		
 		return [removeFromCellAction]
 
