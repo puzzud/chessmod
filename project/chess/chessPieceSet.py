@@ -2,18 +2,24 @@ from typing import Dict, List
 
 from chess.pieceSet import PieceSet
 import chess.piece
-import chess.chessPiece
+#import chess.chessPiece
+import chess.pawnChessPiece
+import chess.rookChessPiece
+import chess.knightChessPiece
+import chess.bishopChessPiece
+import chess.queenChessPiece
+import chess.kingChessPiece
 
 class ChessPieceSet(PieceSet):
 	def __init__(self):
 		super().__init__()
 
-		self.addPieceType(chess.chessPiece.PawnChessPiece, 'P')
-		self.addPieceType(chess.chessPiece.RookChessPiece, 'R')
-		self.addPieceType(chess.chessPiece.KnightChessPiece, 'N')
-		self.addPieceType(chess.chessPiece.BishopChessPiece, 'B')
-		self.addPieceType(chess.chessPiece.QueenChessPiece, 'Q')
-		self.addPieceType(chess.chessPiece.KingChessPiece, 'K')
+		self.addPieceType(chess.pawnChessPiece.PawnChessPiece, 'P')
+		self.addPieceType(chess.rookChessPiece.RookChessPiece, 'R')
+		self.addPieceType(chess.knightChessPiece.KnightChessPiece, 'N')
+		self.addPieceType(chess.bishopChessPiece.BishopChessPiece, 'B')
+		self.addPieceType(chess.queenChessPiece.QueenChessPiece, 'Q')
+		self.addPieceType(chess.kingChessPiece.KingChessPiece, 'K')
 
 	def createPieceFromCharacter(self, character: str) -> int:
 		upperCharacter = character.upper()

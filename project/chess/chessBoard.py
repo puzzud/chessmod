@@ -2,9 +2,9 @@ from typing import Dict, List, Set
 from enum import Enum
 
 from chess.board import Board, BoardPieceActionType
-import chess.piece
 import chess.chessPieceSet
-import chess.chessPiece
+import chess.rookChessPiece
+import chess.kingChessPiece
 
 class ChessEndGameCondition(Enum):
 	NONE = -1
@@ -88,7 +88,7 @@ class ChessBoard(Board):
 		else:
 			pieceIndices = self.getAllPieceIndices()
 
-		return list(filter(lambda cellIndex: isinstance(self.getPieceFromCell(cellIndex), chess.chessPiece.KingChessPiece), pieceIndices))
+		return list(filter(lambda cellIndex: isinstance(self.getPieceFromCell(cellIndex), chess.kingChessPiece.KingChessPiece), pieceIndices))
 	
 	def getAllRookIndices(self, teamIndex: int = -1) -> List[int]:
 		pieceIndices: list[int] = []
@@ -98,7 +98,7 @@ class ChessBoard(Board):
 		else:
 			pieceIndices = self.getAllPieceIndices()
 
-		return list(filter(lambda cellIndex: isinstance(self.getPieceFromCell(cellIndex), chess.chessPiece.RookChessPiece), pieceIndices))
+		return list(filter(lambda cellIndex: isinstance(self.getPieceFromCell(cellIndex), chess.rookChessPiece.RookChessPiece), pieceIndices))
 
 	def isKingInCheck(self, teamIndex: int) -> bool:
 		# Get combined list of all the valid attack based destination cell indices of all pieces on the other team.
