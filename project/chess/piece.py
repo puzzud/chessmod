@@ -27,3 +27,5 @@ class Piece:
 	def getPossibleAttackCellIndices(self, _board, cellIndex: int) -> List[int]:
 		return []
 	
+	def getPieceActionsFromTargetCell(self, _board, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
+		return []

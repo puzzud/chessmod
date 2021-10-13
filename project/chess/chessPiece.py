@@ -18,6 +18,10 @@ class ChessPiece(Piece):
 		possibleTargetCellIndices = self.getPossibleTargetCellIndices(board, cellIndex)
 		return list(filter(lambda cellIndex: board.doesCellHaveOpponentPiece(cellIndex, self.teamIndex), possibleTargetCellIndices))
 
+	def getPieceActionsFromTargetCell(self, _board, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
+		board: chess.chessBoard.ChessBoard = _board
+		return board.getMovePieceActions(activeCellIndex, targetCellIndex)
+
 class PawnChessPiece(ChessPiece):
 	def __init__(self):
 		super().__init__()
@@ -53,6 +57,19 @@ class PawnChessPiece(ChessPiece):
 
 		return possibleTargetCellIndices
 	
+	def getPieceActionsFromTargetCell(self, _board, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
+		board: chess.chessBoard.ChessBoard = _board
+
+		if targetCellIndex == self.getEnPassantTargetCellIndex(board, board.getCellCoordinatesFromIndex(activeCellIndex)):
+			return self.getPieceActionsFromEnPassant(board, activeCellIndex, targetCellIndex)
+
+		# Check for promotion.
+		pieceActions = board.getMovePieceActions(activeCellIndex, targetCellIndex)
+		if self.getRank(board, board.getCellCoordinatesFromIndex(targetCellIndex)) == 8:
+			pieceActions += self.getPieceActionsFromPawnPromotion(board, targetCellIndex)
+				
+		return pieceActions
+
 	def getPrimaryDirection(self) -> List[int]:
 		direction = [0, 1]
 		if self.teamIndex == 0:
@@ -113,9 +130,44 @@ class PawnChessPiece(ChessPiece):
 		
 		return board.getCellIndexFromCoordinates(enPassantToCoordinates)
 
-	def isValidEnPassantTargetCell(self, cellIndex: int, targetCellIndex: int, _board) -> bool:
+	def getPieceActionsFromEnPassant(self, _board, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
 		board: chess.chessBoard.ChessBoard = _board
-		return self.getEnPassantTargetCellIndex(board, board.getCellCoordinatesFromIndex(cellIndex)) == cellIndex
+		
+		# NOTE: Assumes piece is a pawn.
+		pawnPiece: PawnChessPiece = self
+
+		# NOTE: Assumes en passant is possible.
+		pawnFromCellCoordinates = board.getCellCoordinatesFromIndex(activeCellIndex)
+		pawnToCellCoordinates = board.getCellCoordinatesFromIndex(targetCellIndex)
+		otherPawnCellCoordinates = [
+			pawnToCellCoordinates[0],
+			pawnFromCellCoordinates[1]
+		]
+
+		otherPawnRemovePieceActions = board.getRemovePieceActions(board.getCellIndexFromCoordinates(otherPawnCellCoordinates))
+		movePawnPieceActions = board.getMovePieceActions(activeCellIndex, targetCellIndex)
+
+		return otherPawnRemovePieceActions + movePawnPieceActions
+
+	def getPieceActionsFromPawnPromotion(self, _board, cellIndex: int) -> List[dict]:
+		board: chess.chessBoard.ChessBoard = _board
+		
+		removeFromCellAction = {
+				"type": chess.chessBoard.BoardPieceActionType.REMOVE_FROM_CELL,
+				"cellIndex": cellIndex,
+				"pieceTypeId": board.pieceSet.getTypeIdFromPieceType(type(self))
+			}
+
+		removeFromCellAction = {**removeFromCellAction, **self.getAttributesAsDict()}
+
+		addToCellAction = {
+				"type": chess.chessBoard.BoardPieceActionType.ADD_TO_CELL,
+				"cellIndex": cellIndex,
+				"pieceTypeId": board.pieceSet.getTypeIdFromPieceType(QueenChessPiece),
+				"teamIndex": self.teamIndex
+			}
+
+		return [removeFromCellAction, addToCellAction]
 
 class RookChessPiece(ChessPiece):
 	def __init__(self):
@@ -271,6 +323,14 @@ class KingChessPiece(ChessPiece):
 		possibleMoveCellIndices = self.getPossibleMoveCellIndices(board, cellIndex)
 		return list(filter(lambda cellIndex: board.doesCellHaveOpponentPiece(cellIndex, self.teamIndex), possibleMoveCellIndices))
 
+	def getPieceActionsFromTargetCell(self, _board, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
+		board: chess.chessBoard.ChessBoard = _board
+
+		if self.isValidCastleTargetCell(board, activeCellIndex, targetCellIndex):
+			return self.getPieceActionsFromCastle(board, activeCellIndex, targetCellIndex)
+
+		return super().getPieceActionsFromTargetCell(board, activeCellIndex, targetCellIndex)
+
 	def getPossibleCastleTargetCellIndices(self, _board, cellIndex: int) -> List[int]:
 		possibleTargetCellIndices: list[int] = []
 		
@@ -279,12 +339,12 @@ class KingChessPiece(ChessPiece):
 		if self.moveCount == 0:
 			rookIndices = board.getAllRookIndices(self.teamIndex)
 			for rookIndex in rookIndices:
-				if self.isValidCastleTargetCell(cellIndex, rookIndex, board):
+				if self.isValidCastleTargetCell(board, cellIndex, rookIndex):
 					possibleTargetCellIndices.append(rookIndex)
 		
 		return possibleTargetCellIndices
 
-	def isValidCastleTargetCell(self, cellIndex: int, targetCellIndex: int, _board) -> bool:
+	def isValidCastleTargetCell(self, _board, cellIndex: int, targetCellIndex: int) -> bool:
 		board: chess.chessBoard.ChessBoard = _board
 		
 		piece = board.getPieceFromCell(cellIndex)
@@ -325,4 +385,27 @@ class KingChessPiece(ChessPiece):
 				return False
 
 		return True
+
+	def getPieceActionsFromCastle(self, _board, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
+		board: chess.chessBoard.ChessBoard = _board
+		
+		# NOTE: Assumes piece is a king.
+		kingPiece: KingChessPiece = self
+
+		# NOTE: Assumes a castle is possible (isValidCastleTargetCell is True).
+		kingCellCoordinates = board.getCellCoordinatesFromIndex(activeCellIndex)
+		rookCellCoordinates = board.getCellCoordinatesFromIndex(targetCellIndex)
+
+		moveDirection = board.getDirectionBetweenCellCoordinates(kingCellCoordinates, rookCellCoordinates)
+		
+		rookCellCoordinates[0] = kingCellCoordinates[0] + moveDirection[0] # Distance 1
+		kingCellCoordinates[0] += (moveDirection[0] * 2) # Distance 2
+
+		rookToCellIndex = board.getCellIndexFromCoordinates(rookCellCoordinates)
+		kingToCellIndex = board.getCellIndexFromCoordinates(kingCellCoordinates)
+
+		kingMovePieceActions = board.getMovePieceActions(activeCellIndex, kingToCellIndex)
+		rookMovePieceActions = board.getMovePieceActions(targetCellIndex, rookToCellIndex)
+
+		return rookMovePieceActions + kingMovePieceActions
 	

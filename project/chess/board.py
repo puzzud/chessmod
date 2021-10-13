@@ -216,9 +216,11 @@ class Board:
 		return pieceActions
 	
 	def getPieceActionsFromTargetCell(self, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
-		pieceActions = self.getMovePieceActions(activeCellIndex, targetCellIndex)
+		piece = self.getPieceFromCell(activeCellIndex)
+		if piece is not None:
+			return piece.getPieceActionsFromTargetCell(self, activeCellIndex, targetCellIndex)
 
-		return pieceActions
+		return []
 
 	def performPieceAction(self, activeCellIndex: int, targetCellIndex: int) -> List[dict]:
 		pieceActions = self.getPieceActionsFromTargetCell(activeCellIndex, targetCellIndex)
