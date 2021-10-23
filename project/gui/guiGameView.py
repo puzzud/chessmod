@@ -9,6 +9,8 @@ from chess.guiPlayerList import GuiPlayerList
 from chess.guiChessBoard import GuiChessBoard
 
 from engine.gameView import GameView
+from engine.gamePlayer import GamePlayer, GamePlayerTypeId
+
 from chess.chessGameModel import ChessGameModel
 from chess.chessBoard import ChessBoard
 
@@ -75,6 +77,16 @@ class GuiGameView(GameView):
 		self.guiCommandLine.attach(self, "commandLineEntered")
 
 		self.draw()
+
+		for teamIndex in range(len(payload["teamNames"])):
+			player = GamePlayer()
+			player.typeId = GamePlayerTypeId.LOCAL
+			player.teamIndex = teamIndex
+			player.name = "Player " + str(teamIndex)
+			self.notify("playerJoinRequested", player)
+
+	def onPlayerAdded(self, player: GamePlayer) -> None:
+		pass
 
 	def onKeyDown(self, keyCode: int) -> None:
 		self.guiCommandLine.onKeyDown(keyCode)

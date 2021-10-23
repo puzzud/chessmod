@@ -2,13 +2,16 @@ from typing import List
 
 from engine.observer import Observer
 from engine.gameModel import GameModel
+from engine.gamePlayer import GamePlayer
 
 class GameController(Observer):
 	def __init__(self, gameModel: GameModel):
 		super().__init__()
 
+		self.signalHandlers["playerJoinRequested"] = self.onPlayerJoinRequested
 		self.signalHandlers["gameEnded"] = self.onGameEnded
 
+		gameModel.attach(self, "playerJoinRequested")
 		gameModel.attach(self, "gameEnded")
 
 		self.running = False
@@ -18,3 +21,7 @@ class GameController(Observer):
 
 	def onGameEnded(self, winningTeamIndex: int) -> None:
 		self.running = False
+
+	def onPlayerJoinRequested(self, player: GamePlayer) -> None:
+		self.notify("playerJoinRequested", player)
+	
