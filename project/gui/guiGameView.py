@@ -86,7 +86,7 @@ class GuiGameView(GameView):
 			self.notify("playerJoinRequested", player)
 
 	def onPlayerAdded(self, player: GamePlayer) -> None:
-		pass
+		self.guiPlayerList.addPlayer(player)
 
 	def onPlayerTypeUpdated(self, payload: Dict[str, Any]) -> None:
 		pass
