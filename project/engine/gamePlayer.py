@@ -20,6 +20,8 @@ class GamePlayer():
 		gamePlayerCopy.teamIndex = self.teamIndex
 		gamePlayerCopy.name = self.name
 
+		return gamePlayerCopy
+
 	def copy(self):
 		return copy.copy(self)
 	

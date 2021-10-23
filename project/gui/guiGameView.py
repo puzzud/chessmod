@@ -88,8 +88,13 @@ class GuiGameView(GameView):
 	def onPlayerAdded(self, player: GamePlayer) -> None:
 		pass
 
-	def onKeyDown(self, keyCode: int) -> None:
-		self.guiCommandLine.onKeyDown(keyCode)
+	def onPlayerTypeUpdated(self, payload: Dict[str, Any]) -> None:
+		pass
+
+	def onKeyDown(self, payload: Dict[str, Any]) -> None:
+		keyCode: int = payload["keyCode"]
+		character: str = payload["character"]
+		self.guiCommandLine.onKeyDown(keyCode, character)
 
 		self.draw()
 

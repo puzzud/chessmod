@@ -28,6 +28,7 @@ class GuiGameController(GameController):
 		guiGameView.attach(self, "textCommandIssued")
 
 		self.attach(gameModel, "cellSelected")
+
 		self.attach(guiGameView, "keyDown")
 		self.attach(guiGameView, "pointerDown")
 
@@ -56,7 +57,7 @@ class GuiGameController(GameController):
 				self.running = False
 				return
 			
-			self.notify("keyDown", event.key)
+			self.notify("keyDown", {"keyCode": event.key, "character": event.unicode})
 	
 	def onMouseEvent(self, event: pygame.event) -> None:
 		if event.type == pygame.MOUSEBUTTONDOWN:
@@ -69,4 +70,21 @@ class GuiGameController(GameController):
 		textCommand = str(textCommand)
 		if textCommand == "quit":
 			self.running = False
+			return
+		
+		commandParts = textCommand.split(' ')
+		numberOfCommandParts = len(commandParts)
+		if numberOfCommandParts <= 0:
+			return
+
+		commandName = commandParts[0].lower()
+
+		if commandName == "player_type":
+			if numberOfCommandParts == 3:
+				command = {
+					"name": commandName,
+					"index": int(commandParts[1]),
+					"value": commandParts[2]
+				}
+				self.notify("commandIssued", command)
 	

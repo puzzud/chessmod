@@ -55,6 +55,9 @@ class ClGameView(GameView):
 	def onPlayerAdded(self, player: GamePlayer) -> None:
 		print("Player Added: " + player.name)
 
+	def onPlayerTypeUpdated(self, payload: Dict[str, Any]) -> None:
+		print("Player Type Updated: " + str(payload["index"]) + " " + str(payload["value"]))
+
 	def onGameEnded(self, winningTeamIndex: int) -> None:
 		print("Game Ended")
 		if winningTeamIndex > -1:

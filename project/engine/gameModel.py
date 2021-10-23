@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from engine.observer import Observer
 from engine.gamePlayer import GamePlayer
@@ -7,6 +7,7 @@ class GameModel(Observer):
 	def __init__(self):
 		super().__init__()
 
+		self.signalHandlers["commandIssued"] = self.onCommandIssued
 		self.signalHandlers["playerJoinRequested"] = self.onPlayerJoinRequested
 
 		self.players: list[GamePlayer] = []
@@ -21,6 +22,14 @@ class GameModel(Observer):
 	def shutdown(self) -> int:
 		return 0
 	
+	def onCommandIssued(self, command: Dict[str, Any]) -> None:
+		commandName: str = command["name"]
+		commandName = commandName.lower()
+		if commandName == "player_type":
+			playerIndex: int = command["index"]
+			playerTypeId = int(command["value"])
+			self.updatePlayerType(playerIndex, playerTypeId)
+
 	def onPlayerJoinRequested(self, player: GamePlayer) -> None:
 		self.addPlayer(player)
 
@@ -31,7 +40,12 @@ class GameModel(Observer):
 		self.notify("gameEnded")
 	
 	def addPlayer(self, player: GamePlayer) -> None:
-		self.players.append(player.copy())
+		player = player.copy()
+		self.players.append(player)
 
 		self.notify("playerAdded", player)
+	
+	def updatePlayerType(self, playerIndex: int, playerTypeId: int) -> None:
+		self.players[playerIndex].typeId = playerTypeId
+		self.notify("playerTypeUpdated", {"index": playerIndex, "value": playerTypeId})
 	

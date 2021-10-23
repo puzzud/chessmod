@@ -13,6 +13,7 @@ class GameController(Observer):
 
 		gameModel.attach(self, "gameEnded")
 
+		self.attach(gameModel, "commandIssued")
 		self.attach(gameModel, "playerJoinRequested")
 
 		self.running = False
