@@ -31,5 +31,7 @@ class GameModel(Observer):
 		self.notify("gameEnded")
 	
 	def addPlayer(self, player: GamePlayer) -> None:
+		self.players.append(player)
+
 		self.notify("playerAdded", player)
 	
