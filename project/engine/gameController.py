@@ -11,8 +11,9 @@ class GameController(Observer):
 		self.signalHandlers["playerJoinRequested"] = self.onPlayerJoinRequested
 		self.signalHandlers["gameEnded"] = self.onGameEnded
 
-		gameModel.attach(self, "playerJoinRequested")
 		gameModel.attach(self, "gameEnded")
+
+		self.attach(gameModel, "playerJoinRequested")
 
 		self.running = False
 	

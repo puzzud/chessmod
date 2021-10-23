@@ -9,6 +9,8 @@ class GameView(Observer):
 		super().__init__()
 
 		self.signalHandlers["playerAdded"] = self.onPlayerAdded
+
+		gameModel.attach(self, "playerAdded")
 	
 	def __del__(self):
 		pass
