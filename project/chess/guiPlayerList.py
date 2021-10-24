@@ -3,7 +3,7 @@ from typing import List, Tuple
 import pygame
 from pygame.locals import *
 
-from engine.gamePlayer import GamePlayer
+from engine.gamePlayer import GamePlayer, GamePlayerTypeId
 
 from gui.guiNode import GuiNode
 from gui.guiLabel import GuiLabel
@@ -28,10 +28,21 @@ class GuiPlayerList(GuiNode):
 
 		self.render()
 
+	def getActivePlayer(self) -> GamePlayer:
+		if self.activePlayerIndex < 0:
+			return None
+
+		return self.players[self.activePlayerIndex]
+
 	def addPlayer(self, player: GamePlayer) -> None:
 		self.players.append(player.copy())
 
 		self.children[len(self.players) - 1].setText(player.name)
+
+		self.render()
+
+	def updatePlayerType(self, playerIndex: int, playerTypeId: GamePlayerTypeId) -> None:
+		self.players[playerIndex].typeId = playerIndex
 
 		self.render()
 

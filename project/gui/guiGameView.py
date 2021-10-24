@@ -89,7 +89,7 @@ class GuiGameView(GameView):
 		self.guiPlayerList.addPlayer(player)
 
 	def onPlayerTypeUpdated(self, payload: Dict[str, Any]) -> None:
-		pass
+		self.guiPlayerList.updatePlayerType(payload["index"], payload["value"])
 
 	def onKeyDown(self, payload: Dict[str, Any]) -> None:
 		keyCode: int = payload["keyCode"]
@@ -99,6 +99,10 @@ class GuiGameView(GameView):
 		self.draw()
 
 	def onPointerDown(self, position: List[int]) -> None:
+		activePlayerTypeId = self.guiPlayerList.getActivePlayer().typeId
+		if activePlayerTypeId != GamePlayerTypeId.LOCAL:
+			return
+
 		cellIndex = self.getCellIndexFromPoint(position)
 		if cellIndex > -1:
 			self.notify("cellSelected", cellIndex)
