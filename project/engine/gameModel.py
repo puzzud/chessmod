@@ -7,6 +7,7 @@ class GameModel(Observer):
 	def __init__(self):
 		super().__init__()
 
+		self.signalHandlers["quitRequested"] = self.onQuitRequested
 		self.signalHandlers["commandIssued"] = self.onCommandIssued
 		self.signalHandlers["playerJoinRequested"] = self.onPlayerJoinRequested
 
@@ -22,6 +23,9 @@ class GameModel(Observer):
 	def shutdown(self) -> int:
 		return 0
 	
+	def onQuitRequested(self, payload: None) -> None:
+		self.notify("gameQuit")
+
 	def onCommandIssued(self, command: Dict[str, Any]) -> None:
 		commandName: str = command["name"]
 		commandName = commandName.lower()
