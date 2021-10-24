@@ -13,6 +13,7 @@ from engine.gamePlayer import GamePlayer, GamePlayerTypeId
 
 from chess.chessGameModel import ChessGameModel
 from chess.chessBoard import ChessBoard
+from chess.chessPlayerAi import ChessPlayerAi
 
 class GuiGameView(GameView):
 	from chess.board import Board
@@ -65,6 +66,9 @@ class GuiGameView(GameView):
 
 		pygame.display.update()
 
+	def selectCell(self, cellIndex: int) -> None:
+		self.notify("cellSelected", cellIndex)
+
 	def onGameInitialized(self, payload: Dict[str, Any]) -> None:
 		board = ChessBoard()
 		board.loadFromStringRowList(payload["boardStringRowList"])
@@ -80,7 +84,7 @@ class GuiGameView(GameView):
 
 		for teamIndex in range(len(payload["teamNames"])):
 			player = GamePlayer()
-			player.typeId = GamePlayerTypeId.LOCAL
+			player.typeId = GamePlayerTypeId.LOCAL.value
 			player.teamIndex = teamIndex
 			player.name = "Player " + str(teamIndex)
 			self.notify("playerJoinRequested", player)
@@ -100,12 +104,12 @@ class GuiGameView(GameView):
 
 	def onPointerDown(self, position: List[int]) -> None:
 		activePlayerTypeId = self.guiPlayerList.getActivePlayer().typeId
-		if activePlayerTypeId != GamePlayerTypeId.LOCAL:
+		if activePlayerTypeId != GamePlayerTypeId.LOCAL.value:
 			return
 
 		cellIndex = self.getCellIndexFromPoint(position)
 		if cellIndex > -1:
-			self.notify("cellSelected", cellIndex)
+			self.selectCell(cellIndex)
 
 	def onCommandLineEntered(self, textCommand: str) -> None:
 		self.notify("textCommandIssued", textCommand)
@@ -113,6 +117,17 @@ class GuiGameView(GameView):
 	def onTurnStarted(self, currentTurnTeamIndex: int) -> None:
 		self.guiChessBoard.clearHighlightedCells()
 		self.guiPlayerList.setActivePlayerIndex(currentTurnTeamIndex)
+
+		activePlayer = self.guiPlayerList.getActivePlayer()
+		if activePlayer.typeId == GamePlayerTypeId.AI.value:
+			activeCellIndex: int = -1
+			targetCellIndex: int = -1
+			chessPlayerAi = ChessPlayerAi(self.guiChessBoard.board, self.guiPlayerList.activePlayerIndex)
+			(activeCellIndex, targetCellIndex) = chessPlayerAi.getPieceActionCells()
+
+			if activeCellIndex > -1 and targetCellIndex > -1:
+				self.selectCell(activeCellIndex)
+				self.selectCell(targetCellIndex)
 
 		self.draw()
 

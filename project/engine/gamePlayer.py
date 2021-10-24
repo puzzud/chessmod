@@ -10,7 +10,7 @@ class GamePlayerTypeId(Enum):
 
 class GamePlayer():
 	def __init__(self):
-		self.typeId = GamePlayerTypeId.NONE
+		self.typeId = GamePlayerTypeId.NONE.value
 		self.teamIndex = -1
 		self.name = ""
 	

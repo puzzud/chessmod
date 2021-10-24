@@ -1,7 +1,7 @@
 from typing import Any, Dict, List
 
 from engine.observer import Observer
-from engine.gamePlayer import GamePlayer
+from engine.gamePlayer import GamePlayer, GamePlayerTypeId
 
 class GameModel(Observer):
 	def __init__(self):

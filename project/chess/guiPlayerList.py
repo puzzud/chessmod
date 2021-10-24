@@ -41,8 +41,8 @@ class GuiPlayerList(GuiNode):
 
 		self.render()
 
-	def updatePlayerType(self, playerIndex: int, playerTypeId: GamePlayerTypeId) -> None:
-		self.players[playerIndex].typeId = playerIndex
+	def updatePlayerType(self, playerIndex: int, playerTypeId: int) -> None:
+		self.players[playerIndex].typeId = playerTypeId
 
 		self.render()
 
