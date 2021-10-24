@@ -2,6 +2,7 @@ from typing import List
 from enum import Enum
 
 from engine.gameModel import GameModel
+from engine.gamePlayer import GamePlayer
 import chess.chessPieceSet
 import chess.chessBoard
 
@@ -13,6 +14,8 @@ class ChessTurnStateId(Enum):
 	PIECE_ACTIVE = 1
 
 class ChessGameModel(GameModel):
+	MaximumNumberOfPlayers = 2
+
 	def __init__(self):
 		super().__init__()
 
@@ -25,7 +28,7 @@ class ChessGameModel(GameModel):
 
 		self.board = chess.chessBoard.ChessBoard()
 
-		self.currentTurnTeamIndex = 0
+		self.currentTurnTeamIndex = -1
 		self.phaseId = ChessPhaseId.PLAY
 		self.turnStateId = ChessTurnStateId.PIECE_NOT_ACTIVE
 		self.activatedPieceCellIndex = -1
@@ -51,8 +54,6 @@ class ChessGameModel(GameModel):
 
 		self.notify("gameInitialized", payload)
 		
-		self.startGame()
-
 		return 0
 
 	def getNextCurrentTurnTeamIndex(self) -> int:
@@ -60,6 +61,17 @@ class ChessGameModel(GameModel):
 
 	def shutdown(self) -> int:
 		return super().shutdown()
+
+	def onPlayerJoinRequested(self, player: GamePlayer) -> None:
+		currentNumberOfPlayers = len(self.players)
+		if currentNumberOfPlayers >= self.MaximumNumberOfPlayers:
+			return
+		
+		super().onPlayerJoinRequested(player)
+		
+		currentNumberOfPlayers = len(self.players)
+		if currentNumberOfPlayers == self.MaximumNumberOfPlayers:
+			self.startGame()
 
 	def activatePiece(self, cellIndex: int) -> None:
 		self.activatedPieceCellIndex = cellIndex

@@ -1,6 +1,8 @@
 from typing import Any, Dict, List
 
 from engine.gameView import GameView
+from engine.gamePlayer import GamePlayer
+
 from chess.chessGameModel import ChessGameModel
 from chess.chessBoard import ChessBoard
 
@@ -49,6 +51,12 @@ class ClGameView(GameView):
 		self.board.loadFromStringRowList(payload["boardStringRowList"])
 
 		self.teamNames = payload["teamNames"].copy()
+
+	def onPlayerAdded(self, player: GamePlayer) -> None:
+		print("Player Added: " + player.name)
+
+	def onPlayerTypeUpdated(self, payload: Dict[str, Any]) -> None:
+		print("Player Type Updated: " + str(payload["index"]) + " " + str(payload["value"]))
 
 	def onGameEnded(self, winningTeamIndex: int) -> None:
 		print("Game Ended")

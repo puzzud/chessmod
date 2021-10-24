@@ -14,7 +14,7 @@ def main() -> None:
 	clGameView = ClGameView(gameModel)
 
 	gameModel.initialize()
-	guiGameController.loop()
+	guiGameView.loop()
 	gameModel.shutdown()
 
 if __name__ == "__main__":
