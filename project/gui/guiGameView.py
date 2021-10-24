@@ -69,6 +69,16 @@ class GuiGameView(GameView):
 	def selectCell(self, cellIndex: int) -> None:
 		self.notify("cellSelected", cellIndex)
 
+	def makePlayerAiAction(self, teamIndex: int) -> None:
+		activeCellIndex: int = -1
+		targetCellIndex: int = -1
+		chessPlayerAi = ChessPlayerAi(self.guiChessBoard.board, self.guiPlayerList.activePlayerIndex)
+		(activeCellIndex, targetCellIndex) = chessPlayerAi.getPieceActionCells()
+
+		if activeCellIndex > -1 and targetCellIndex > -1:
+			self.selectCell(activeCellIndex)
+			self.selectCell(targetCellIndex)
+
 	def onGameInitialized(self, payload: Dict[str, Any]) -> None:
 		board = ChessBoard()
 		board.loadFromStringRowList(payload["boardStringRowList"])
@@ -93,7 +103,12 @@ class GuiGameView(GameView):
 		self.guiPlayerList.addPlayer(player)
 
 	def onPlayerTypeUpdated(self, payload: Dict[str, Any]) -> None:
-		self.guiPlayerList.updatePlayerType(payload["index"], payload["value"])
+		playerIndex = payload["index"]
+		self.guiPlayerList.updatePlayerType(playerIndex, payload["value"])
+
+		if playerIndex == self.guiPlayerList.activePlayerIndex:
+			if self.guiPlayerList.getActivePlayer().typeId == GamePlayerTypeId.AI.value:
+				self.makePlayerAiAction(playerIndex)
 
 	def onKeyDown(self, payload: Dict[str, Any]) -> None:
 		keyCode: int = payload["keyCode"]
@@ -120,14 +135,7 @@ class GuiGameView(GameView):
 
 		activePlayer = self.guiPlayerList.getActivePlayer()
 		if activePlayer.typeId == GamePlayerTypeId.AI.value:
-			activeCellIndex: int = -1
-			targetCellIndex: int = -1
-			chessPlayerAi = ChessPlayerAi(self.guiChessBoard.board, self.guiPlayerList.activePlayerIndex)
-			(activeCellIndex, targetCellIndex) = chessPlayerAi.getPieceActionCells()
-
-			if activeCellIndex > -1 and targetCellIndex > -1:
-				self.selectCell(activeCellIndex)
-				self.selectCell(targetCellIndex)
+			self.makePlayerAiAction(currentTurnTeamIndex)
 
 		self.draw()
 
