@@ -3,7 +3,7 @@ from typing import List
 from engine.gameController import GameController
 from engine.gameModel import GameModel
 
-class GuiGameController(GameController):
+class ChessGameController(GameController):
 	def __init__(self, gameModel: GameModel):
 		super().__init__(gameModel)
 

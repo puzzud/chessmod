@@ -1,20 +1,20 @@
 from os import sys
 
 from chess.chessGameModel import ChessGameModel
-from gui.guiGameView import GuiGameView
-from gui.guiGameController import GuiGameController
-from cl.clGameView import ClGameView
+from chess.chessGameController import ChessGameController
+from chess.guiChessGameView import GuiChessGameView
+from chess.clChessGameView import ClChessGameView
 
 def main() -> None:
 	gameModel = ChessGameModel()
 	
-	guiGameController = GuiGameController(gameModel)
+	chessGameController = ChessGameController(gameModel)
 
-	guiGameView = GuiGameView(gameModel, guiGameController)
-	clGameView = ClGameView(gameModel, guiGameController)
+	guiChessGameView = GuiChessGameView(gameModel, chessGameController)
+	clChessGameView = ClChessGameView(gameModel, chessGameController)
 
 	gameModel.initialize()
-	guiGameView.loop()
+	guiChessGameView.loop()
 	gameModel.shutdown()
 
 if __name__ == "__main__":

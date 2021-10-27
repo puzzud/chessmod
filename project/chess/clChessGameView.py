@@ -6,13 +6,13 @@ from engine.gamePlayer import GamePlayer
 from chess.chessGameModel import ChessGameModel
 from chess.chessBoard import ChessBoard
 
-from gui.guiGameController import GuiGameController
+from chess.chessGameController import ChessGameController
 
-class ClGameView(GameView):
+class ClChessGameView(GameView):
 	from chess.board import Board
 	
-	def __init__(self, chessGameModel: ChessGameModel, guiGameController: GuiGameController):
-		super().__init__(chessGameModel, guiGameController)
+	def __init__(self, chessGameModel: ChessGameModel, chessGameController: ChessGameController):
+		super().__init__(chessGameModel, chessGameController)
 
 		self.signalHandlers["gameInitialized"] = self.onGameInitialized
 		self.signalHandlers["gameEnded"] = self.onGameEnded
