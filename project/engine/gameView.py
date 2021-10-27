@@ -2,10 +2,11 @@ from typing import Any, Dict, List
 
 from engine.observer import Observer
 from engine.gameModel import GameModel
+from engine.gameController import GameController
 from engine.gamePlayer import GamePlayer
 
 class GameView(Observer):
-	def __init__(self, gameModel: GameModel):
+	def __init__(self, gameModel: GameModel, gameController: GameController):
 		super().__init__()
 
 		self.signalHandlers["gameQuit"] = self.onGameQuit

@@ -2,19 +2,14 @@ from typing import List
 
 from engine.gameController import GameController
 from engine.gameModel import GameModel
-from gui.guiGameView import GuiGameView
 
 class GuiGameController(GameController):
-	def __init__(self, gameModel: GameModel, guiGameView: GuiGameView):
+	def __init__(self, gameModel: GameModel):
 		super().__init__(gameModel)
 
 		self.signalHandlers["playerJoinRequested"] = self.onPlayerJoinRequested
 		self.signalHandlers["cellSelected"] = self.onCellSelected
 		self.signalHandlers["textCommandIssued"] = self.onTextCommandIssued
-
-		guiGameView.attach(self, "playerJoinRequested")
-		guiGameView.attach(self, "cellSelected")
-		guiGameView.attach(self, "textCommandIssued")
 
 		self.attach(gameModel, "cellSelected")
 		self.attach(gameModel, "quitRequested")

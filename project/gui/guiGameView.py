@@ -15,11 +15,13 @@ from chess.chessGameModel import ChessGameModel
 from chess.chessBoard import ChessBoard
 from chess.chessPlayerAi import ChessPlayerAi
 
+from gui.guiGameController import GuiGameController
+
 class GuiGameView(GameView):
 	from chess.board import Board
 	
-	def __init__(self, chessGameModel: ChessGameModel):
-		super().__init__(chessGameModel)
+	def __init__(self, chessGameModel: ChessGameModel, guiGameController: GuiGameController):
+		super().__init__(chessGameModel, guiGameController)
 
 		self.signalHandlers["gameInitialized"] = self.onGameInitialized
 		self.signalHandlers["commandLineEntered"] = self.onCommandLineEntered
@@ -36,6 +38,10 @@ class GuiGameView(GameView):
 			pygame.MOUSEBUTTONDOWN: self.onMouseEvent,
 			pygame.MOUSEBUTTONUP: self.onMouseEvent
 		}
+
+		self.attach(guiGameController, "playerJoinRequested")
+		self.attach(guiGameController, "cellSelected")
+		self.attach(guiGameController, "textCommandIssued")
 
 		chessGameModel.attach(self, "gameInitialized")
 		chessGameModel.attach(self, "turnStarted")

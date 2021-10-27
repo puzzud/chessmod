@@ -8,10 +8,10 @@ from cl.clGameView import ClGameView
 def main() -> None:
 	gameModel = ChessGameModel()
 	
-	guiGameView = GuiGameView(gameModel)
-	guiGameController = GuiGameController(gameModel, guiGameView)
+	guiGameController = GuiGameController(gameModel)
 
-	clGameView = ClGameView(gameModel)
+	guiGameView = GuiGameView(gameModel, guiGameController)
+	clGameView = ClGameView(gameModel, guiGameController)
 
 	gameModel.initialize()
 	guiGameView.loop()
